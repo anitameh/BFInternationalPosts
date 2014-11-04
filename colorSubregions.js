@@ -48,8 +48,8 @@ var color = d3.scale.ordinal()
 
 // load data
 queue()
-    .defer(d3.json, "world-50m.json")
-    .defer(d3.csv, "post-data-week37.csv", function(d) { 
+    .defer(d3.json, "data/world-50m.json")
+    .defer(d3.csv, "data/post-data-week37.csv", function(d) { 
         pvData[d.id] = d; 
     })
     .await(ready);
