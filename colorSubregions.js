@@ -3,7 +3,7 @@
  * @date: November 3, 2014
  */
 
-// set up svg and map params
+// init: set up svg and map params
 var width = 960,
 	height = 500,
 	margin = 20;
@@ -31,41 +31,47 @@ svg.append("path")
     .attr("class", "graticule outline")
     .attr("d", path);
 
-// color scale
-var colorScale = [];
-colorScale["en"] = "Indigo";
-colorScale["es"] = "Crimson";
-colorScale["pt"] = "Gold";
-colorScale["de"] = "ForestGreen";
-colorScale["fr"] = "Blue";
+// initialize other variables
 
+
+// color scale
 var color = d3.scale.ordinal()
-	.domain(["English", "Espanol", "Portuguese", "Deutsche", "French"])
+	.domain(["en", "es", "pt", "de", "fr"])
 	.range(["Indigo", "Crimson", "Gold", "ForestGreen", "Blue"]);
 
+var langFull = ["English", "Espanol", "Portuguese", "Deutsche", "French"];
+
 // load data
-var myData = [];
 queue()
     .defer(d3.json, "data/world-50m.json")
-    .defer(d3.csv, "data/aggregated-data.csv", function(d) { 
-        myData[d.id] = d; 
-    })
-    .defer(d3.csv, "data/aggregated-data.csv")
+    .defer(d3.json, "data/aggregated-data.js")
+    .defer(d3.csv, "data/unique-countries.csv")
     .await(ready);
 
-function ready(error, world) {
+
+function ready(error, world, pageviews, uniqueCountries) {
+
+    // get label
+    // var label = d3.select("#week");
 
 	// draw map
 	var countries = topojson.feature(world, world.objects.countries).features;
 
+    // get country ids for countries that viewed content at some point
+    var ids = [];
+    uniqueCountries.forEach(function(d) {
+        ids.push(parseInt(d.id));
+    });
+
+    // draw world map and color
     svg.selectAll(".country")
       .data(countries)
     .enter().insert("path", ".graticule")
       .attr("class", "country")
       .attr("d", path)
       .style("fill", function(d, i) {
-        if (typeof( myData[parseInt(d.id)] ) != "undefined") {
-            return d.color = colorScale[ myData[parseInt(d.id)].Language ];
+        if ( ids.indexOf(d.id) != -1 ) {
+            return d.color = "purple"; // right now, colors all countries that have viewed BFpage at some point
         }
       })
       .style("opacity", "0.8");    
@@ -74,17 +80,50 @@ function ready(error, world) {
     drawLegend();
 
     // make slider
-    var pvMax = 100, 
-        pvMin = 0;
+    var pvMax = 45, 
+        pvMin = 36;
 
     var slider = d3.select("#slider")
-        .append("input")
-            .attr("class", "ui-slider-handle")
-            .attr("type", "range")
-            .attr("max", pvMax)
-            .attr("min", pvMin)
-            .style("width", "400px")
-            .property("value", pvMin);
+            .append("input")
+        .attr("class", "ui-slider-handle")
+        .attr("type", "range")
+        .attr("max", pvMax)
+        .attr("min", pvMin)
+        .style("width", "400px")
+        .property("value", pvMin)
+        .on("change", function(d) {
+            pvMin = this.value;
+        });
+
+    // update
+    var possibleColors = ["purple", "black", "gold", "green", "blue", "OrangeRed", "magenta", "Crimson", "pink", "lightsteelblue"];
+
+    function update() {
+
+        // label.text(pvMin); // update label
+        console.log("pvMin = " + pvMin);
+
+        slider.property("value", pvMin); // set slider
+
+        d3.selectAll(".country").transition()
+            .duration(150)
+            .style("fill", function(d, i) {
+                if ( ids.indexOf(d.id) != -1 ) {
+                    return d.color = possibleColors[pvMin-36];
+                }
+            });
+
+        pvMin++;
+
+    }
+
+    // use this to activate update() function (method inherited from JQuery slider)
+    setInterval(function() {
+        if (pvMin <= pvMax) {
+            update();
+        }
+    }, 1000);
+
 }
 
 
@@ -109,10 +148,8 @@ function drawLegend() {
         .attr("x", 40)
         .attr("y", 389)
         .attr("dy", ".35em")
-        .text(function(d) { return d; })
+        .text(function(d, i) { return langFull[i]; })
             .attr("font-family", "Tahoma")
             .attr("font-size", "10");
 }
-
-
 
