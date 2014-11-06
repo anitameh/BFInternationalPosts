@@ -21,6 +21,11 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
+// svg.append("rect")
+//     .attr("width", "100%")
+//     .attr("height", "100%")
+//     .attr("fill", "black");
+
 svg.append("path")
     .datum(graticule)
     .attr("class", "graticule")
@@ -39,7 +44,15 @@ var color = d3.scale.ordinal()
 	.domain(["en", "es", "pt", "de", "fr"])
 	.range(["Indigo", "Crimson", "Gold", "ForestGreen", "Blue"]);
 
+var englishColors = d3.scale.quantize()
+    .range(colorbrewer.Blues[3]);
+
+var espanolColors = d3.scale.quantize()
+    .range(colorbrewer.YlGn[5]);
+
 var langFull = ["English", "Espanol", "Portuguese", "Deutsche", "French"];
+
+var firstWeekOfYear;
 
 // load data
 queue()
@@ -49,7 +62,7 @@ queue()
     .await(ready);
 
 
-function ready(error, world, pageviews, uniqueCountries) {
+function ready(error, world, pageViews, uniqueCountries) {
 
     // get label
     // var label = d3.select("#week");
@@ -58,30 +71,96 @@ function ready(error, world, pageviews, uniqueCountries) {
 	var countries = topojson.feature(world, world.objects.countries).features;
 
     // get country ids for countries that viewed content at some point
-    var ids = [];
+    var justids = [];
     uniqueCountries.forEach(function(d) {
-        ids.push(parseInt(d.id));
+        justids.push(parseInt(d.id));
     });
 
-    // draw world map and color
+    // initially color based on color of language
+    firstWeekOfYear = pageViews[0].week;
+    
+    
+    var initView = pageViews[0].info;
+
+    var english = initView[0].pageviews;
+    var englishIds = [];
+    var englishPvs = [];
+    english.forEach(function(d) {
+        englishIds.push( d.id );
+        englishPvs[d.id] = d.pv;
+    });
+    var enMax = d3.max(englishPvs);
+    var enMin = d3.min(englishPvs);
+    // console.log(enMin, enMax);
+    englishColors.domain([enMin, enMax]);
+
+    var espanol = initView[1].pageviews;
+    var espanolIds = [];
+    var espanolPvs = [];
+    espanol.forEach(function(d) {
+        espanolIds.push( d.id );
+        espanolPvs[d.id] = d.pv;
+    });
+    // console.log(espanolPvs);
+    var esMax = d3.max(espanolPvs);
+    var esMin = d3.min(espanolPvs);
+    espanolColors.domain([esMin, esMax])
+
+    var portuguese = initView[2].pageviews;
+    var portugueseIds = [];
+    portuguese.forEach(function(d) {
+        portugueseIds.push( d.id );
+    });
+
+    var deutsche = initView[3].pageviews;
+    var deutscheIds = [];
+    deutsche.forEach(function(d) {
+        deutscheIds.push( d.id );
+    });
+
+    var french = initView[4].pageviews;
+    var frenchIds = [];
+    french.forEach(function(d) {
+        frenchIds.push( d.id );
+    });
+
+    // draw initial world map with initial colors
     svg.selectAll(".country")
       .data(countries)
     .enter().insert("path", ".graticule")
       .attr("class", "country")
       .attr("d", path)
       .style("fill", function(d, i) {
-        if ( ids.indexOf(d.id) != -1 ) {
-            return d.color = "purple"; // right now, colors all countries that have viewed BFpage at some point
+        if ( justids.indexOf(d.id) != -1 ) {
+            if (englishIds.indexOf(d.id) != - 1) {
+                return d.color = "blue";
+                // console.log(englishColors( englishPvs[d.id] ));
+                // return d.color = englishColors( englishPvs[d.id] );
+            }
+            else if (espanolIds.indexOf(d.id) != - 1) {
+                return d.color = "green"; 
+                // console.log( espanolColors( espanolPvs[d.id] ) );
+                // return d.color = espanolColors( espanolPvs[d.id] );
+            }
+            else if (portugueseIds.indexOf(d.id) != - 1) {
+                return d.color = "gold"; 
+            }
+            else if (deutscheIds.indexOf(d.id) != - 1) {
+                return d.color = "red"; 
+            }
+            else if (frenchIds.indexOf(d.id) != - 1) {
+                return d.color = "purple"; 
+            }
         }
       })
-      .style("opacity", "0.8");    
+      .style("opacity", "0.75");    
 
     // add legend
     drawLegend();
 
     // make slider
-    var pvMax = 45, 
-        pvMin = 36;
+    var pvMax = d3.max(pageViews, function(d) { return d.week }), 
+        pvMin = d3.min(pageViews, function(d) { return d.week });
 
     var slider = d3.select("#slider")
             .append("input")
@@ -89,7 +168,7 @@ function ready(error, world, pageviews, uniqueCountries) {
         .attr("type", "range")
         .attr("max", pvMax)
         .attr("min", pvMin)
-        .style("width", "400px")
+        .style("width", "200px")
         .property("value", pvMin)
         .on("change", function(d) {
             pvMin = this.value;
@@ -101,14 +180,16 @@ function ready(error, world, pageviews, uniqueCountries) {
     function update() {
 
         // label.text(pvMin); // update label
-        console.log("pvMin = " + pvMin);
+
+        console.log(pvMin - firstWeekOfYear);
 
         slider.property("value", pvMin); // set slider
 
         d3.selectAll(".country").transition()
-            .duration(150)
+            .duration(200)
             .style("fill", function(d, i) {
-                if ( ids.indexOf(d.id) != -1 ) {
+                if ( justids.indexOf(d.id) != -1 ) {
+                    // console.log("d.id = " + d.id); // country id
                     return d.color = possibleColors[pvMin-36];
                 }
             });
@@ -151,5 +232,6 @@ function drawLegend() {
         .text(function(d, i) { return langFull[i]; })
             .attr("font-family", "Tahoma")
             .attr("font-size", "10");
+            // .style("fill", "white");
 }
 
