@@ -5,7 +5,7 @@
 
 // init: set up svg and map params
 var width = 960,
-	height = 500,
+	height = 600,
 	margin = 20;
 
 var attributeArray = [],
@@ -305,27 +305,36 @@ function ready(error, world, pageViews, uniqueCountries) {
 
 function drawLegend() {
 
-    // var legend = svg.selectAll(".legend")
-    //         .data(color.domain().slice().reverse())
-    //     .enter().append("g")
-    //         .attr("class", "legend")
-    //         .attr("transform", function(d, i) { return "translate(0," + (i*20) + ")"; });
+    // a position encoding for the key only
+    var x = d3.scale.linear()
+        .domain([0,1])
+        .range([0,50]);
 
-    // legend.append("rect")
-    //     .attr("x", 18)
-    //     .attr("y", 380)
-    //     .attr("width", 18)
-    //     .attr("height", 18)
-    //     .style("fill", color)
-    //     .style("opacity", "0.7");
-
-    // legend.append("text")
-    //     .attr("x", 40)
-    //     .attr("y", 389)
-    //     .attr("dy", ".35em")
-    //     .text(function(d, i) { return langFull[i]; })
-    //         .attr("font-family", "Tahoma")
-    //         .attr("font-size", "10");
+    svg.selectAll("rect")
+        .data(englishColors.range().map(function(color) {
+            var d = englishColors.invertExtent(color);
+            if (d[0] == null) d[0] = x.domain()[0];
+            if (d[1] == null) d[1] = x.domain()[1];
+            return d;
+        }))
+        .enter().append("rect")
+            .attr("height", 8)    
+            .attr("x", function(d) { return 80+x(d[0]); })
+            .attr("y", height - 70)
+            .attr("width", function(d) { return (x(d[1]) - x(d[0])); })
+            .attr("height", "10px")
+            .style("fill", function(d) { return englishColors(d[0]); });
+     
+     // add legend labels   
+    for (var i=0; i<langFull.length; i++) {
+        svg.append("text")
+            .attr("class", "caption")
+            .attr("x", 40)
+            .attr("y", height - 60 + (10*i))
+            .attr("font-style", "sans-serif")
+            .text(langFull[i]);
+    }
+    
 }
 
 function myLog(input) {
