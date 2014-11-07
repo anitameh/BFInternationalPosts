@@ -21,10 +21,6 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-// svg.append("rect")
-//     .attr("width", "100%")
-//     .attr("height", "100%")
-//     .attr("fill", "black");
 
 svg.append("path")
     .datum(graticule)
@@ -36,8 +32,6 @@ svg.append("path")
     .attr("class", "graticule outline")
     .attr("d", path);
 
-// initialize other variables
-
 
 // color scale
 var color = d3.scale.ordinal()
@@ -45,14 +39,30 @@ var color = d3.scale.ordinal()
 	.range(["Indigo", "Crimson", "Gold", "ForestGreen", "Blue"]);
 
 var englishColors = d3.scale.quantize()
-    .range(colorbrewer.Blues[3]);
+    .range(colorbrewer.Blues[11]);
 
 var espanolColors = d3.scale.quantize()
-    .range(colorbrewer.YlGn[5]);
+    .range(colorbrewer.Greens[10]);
 
-var langFull = ["English", "Espanol", "Portuguese", "Deutsche", "French"];
+var frenchColors = d3.scale.quantize()
+    .range(colorbrewer.YlOrBr[3]);
 
-var firstWeekOfYear;
+var portugueseColors = d3.scale.quantize()
+    .range(colorbrewer.Reds[3]);
+
+var deutscheColors = d3.scale.quantize()
+    .range(colorbrewer.Purples[5]);
+
+var firstScale = d3.scale.linear()
+    .range([0, 1]);
+
+var langFull = ["English", "Espanol", "French", "Portuguese", "Deutsche"];
+
+var firstWeekOfYear,
+    firstCol,
+    lastCol,
+    langMin = [],
+    langMax = [];
 
 // load data
 queue()
@@ -76,53 +86,34 @@ function ready(error, world, pageViews, uniqueCountries) {
         justids.push(parseInt(d.id));
     });
 
+
+    // get min + max pageviews
+    firstCol = pageViews[0].info;
+    lastCol = pageViews[4].info;
+    for (var j=0; j<lastCol.length; j++) {
+        // get min
+        var firstInfo = firstCol[j].pageviews;
+        langMin.push( d3.min(firstInfo, function(d) { return d.pv }) );
+        // get max
+        var lastInfo = lastCol[j].pageviews;
+        langMax.push( d3.max(lastInfo, function(d) { return d.pv; }) );
+    }
+
+    
     // initially color based on color of language
     firstWeekOfYear = pageViews[0].week;
-    
-    
-    var initView = pageViews[0].info;
-
-    var english = initView[0].pageviews;
-    var englishIds = [];
-    var englishPvs = [];
-    english.forEach(function(d) {
-        englishIds.push( d.id );
-        englishPvs[d.id] = d.pv;
-    });
-    var enMax = d3.max(englishPvs);
-    var enMin = d3.min(englishPvs);
-    // console.log(enMin, enMax);
-    englishColors.domain([enMin, enMax]);
-
-    var espanol = initView[1].pageviews;
-    var espanolIds = [];
-    var espanolPvs = [];
-    espanol.forEach(function(d) {
-        espanolIds.push( d.id );
-        espanolPvs[d.id] = d.pv;
-    });
-    // console.log(espanolPvs);
-    var esMax = d3.max(espanolPvs);
-    var esMin = d3.min(espanolPvs);
-    espanolColors.domain([esMin, esMax])
-
-    var portuguese = initView[2].pageviews;
-    var portugueseIds = [];
-    portuguese.forEach(function(d) {
-        portugueseIds.push( d.id );
-    });
-
-    var deutsche = initView[3].pageviews;
-    var deutscheIds = [];
-    deutsche.forEach(function(d) {
-        deutscheIds.push( d.id );
-    });
-
-    var french = initView[4].pageviews;
-    var frenchIds = [];
-    french.forEach(function(d) {
-        frenchIds.push( d.id );
-    });
+    var firstColoredMap = makeColorMap(0);
+    var englishIds = firstColoredMap[0],
+        englishPvs = firstColoredMap[1],
+        espanolIds = firstColoredMap[2],
+        espanolPvs = firstColoredMap[3],
+        frenchIds = firstColoredMap[4],
+        frenchPvs = firstColoredMap[5],
+        portugueseIds = firstColoredMap[6],
+        portuguesePvs = firstColoredMap[7]
+        deutscheIds = firstColoredMap[8],
+        deutschePvs = firstColoredMap[9];
+        
 
     // draw initial world map with initial colors
     svg.selectAll(".country")
@@ -133,23 +124,22 @@ function ready(error, world, pageViews, uniqueCountries) {
       .style("fill", function(d, i) {
         if ( justids.indexOf(d.id) != -1 ) {
             if (englishIds.indexOf(d.id) != - 1) {
-                return d.color = "blue";
-                // console.log(englishColors( englishPvs[d.id] ));
-                // return d.color = englishColors( englishPvs[d.id] );
+                return d.color = englishColors( englishPvs[d.id] );
             }
             else if (espanolIds.indexOf(d.id) != - 1) {
-                return d.color = "green"; 
-                // console.log( espanolColors( espanolPvs[d.id] ) );
-                // return d.color = espanolColors( espanolPvs[d.id] );
-            }
-            else if (portugueseIds.indexOf(d.id) != - 1) {
-                return d.color = "gold"; 
-            }
-            else if (deutscheIds.indexOf(d.id) != - 1) {
-                return d.color = "red"; 
+                return d.color = espanolColors( espanolPvs[d.id] );
             }
             else if (frenchIds.indexOf(d.id) != - 1) {
-                return d.color = "purple"; 
+                return d.color = frenchColors( frenchPvs[d.id] );
+
+            }
+            else if (portugueseIds.indexOf(d.id) != - 1) {
+                return d.color = portugueseColors( portuguesePvs[d.id] );
+
+            }
+            else if (deutscheIds.indexOf(d.id) != - 1) {
+                return d.color = deutscheColors( deutschePvs[d.id] );
+
             }
         }
       })
@@ -168,20 +158,30 @@ function ready(error, world, pageViews, uniqueCountries) {
         .attr("type", "range")
         .attr("max", pvMax)
         .attr("min", pvMin)
-        .style("width", "200px")
+        .style("width", "400px")
         .property("value", pvMin)
         .on("change", function(d) {
             pvMin = this.value;
         });
 
     // update
-    var possibleColors = ["purple", "black", "gold", "green", "blue", "OrangeRed", "magenta", "Crimson", "pink", "lightsteelblue"];
-
     function update() {
 
         // label.text(pvMin); // update label
 
-        console.log(pvMin - firstWeekOfYear);
+        var currentWeek = pvMin - firstWeekOfYear;
+        var coloredMap = makeColorMap(currentWeek);
+        var englishIds = coloredMap[0],
+            englishPvs = coloredMap[1],
+            espanolIds = coloredMap[2],
+            espanolPvs = coloredMap[3],
+            frenchIds = coloredMap[4],
+            frenchPvs = coloredMap[5],
+            portugueseIds = coloredMap[6],
+            portuguesePvs = coloredMap[7]
+            deutscheIds = coloredMap[8],
+            deutschePvs = coloredMap[9];
+
 
         slider.property("value", pvMin); // set slider
 
@@ -189,8 +189,23 @@ function ready(error, world, pageViews, uniqueCountries) {
             .duration(200)
             .style("fill", function(d, i) {
                 if ( justids.indexOf(d.id) != -1 ) {
-                    // console.log("d.id = " + d.id); // country id
-                    return d.color = possibleColors[pvMin-36];
+                    if (englishIds.indexOf(d.id) != - 1) {
+                        return d.color = englishColors( englishPvs[d.id] );
+                    }
+                    else if (espanolIds.indexOf(d.id) != - 1) {
+                        return d.color = espanolColors( espanolPvs[d.id] );
+                    }
+                    else if (frenchIds.indexOf(d.id) != - 1) {
+                        return d.color = frenchColors( frenchPvs[d.id] );
+                        
+                    }
+                    else if (portugueseIds.indexOf(d.id) != - 1) {
+                        return d.color = portugueseColors( portuguesePvs[d.id] );
+
+                    }
+                    else if (deutscheIds.indexOf(d.id) != - 1) {
+                        return d.color = deutscheColors( deutschePvs[d.id] );
+                    }
                 }
             });
 
@@ -204,7 +219,77 @@ function ready(error, world, pageViews, uniqueCountries) {
             update();
         }
     }, 1000);
+    
 
+    function makeColorMap(i) {
+
+        var initView = pageViews[i].info;
+
+        // English
+        var english = initView[0].pageviews;
+        var englishIds = [];
+        var englishPvs = [];
+        english.forEach(function(d) {
+            englishIds.push( d.id );
+            if (d.pv != 0) {
+                englishPvs[d.id] = d.pv;
+            }
+        });
+        var enMin = langMin[0];
+        var enMax = langMax[0];
+        englishColors.domain([enMin, enMax]);
+
+        // Spanish
+        var espanol = initView[1].pageviews;
+        var espanolIds = [];
+        var espanolPvs = [];
+        espanol.forEach(function(d) {
+            espanolIds.push( d.id );
+            espanolPvs[d.id] = d.pv;
+        });
+        var esMin = langMin[1];
+        var esMax = langMax[1];
+        espanolColors.domain([esMin, esMax]);
+
+        // French
+        var french = initView[2].pageviews;
+        var frenchIds = [];
+        var frenchPvs = [];
+        french.forEach(function(d) {
+            frenchIds.push( d.id );
+            frenchPvs[d.id] = d.pv;
+        });
+        var frMin = langMin[2];
+        var frMax = langMax[2];
+        frenchColors.domain([frMin, frMax]);
+
+        // Portuguese
+        var portuguese = initView[3].pageviews;
+        var portugueseIds = [];
+        var portuguesePvs = [];
+        portuguese.forEach(function(d) {
+            portugueseIds.push( d.id );
+            portuguesePvs[d.id] = d.pv;
+        });
+        var ptMin = langMin[3];
+        var ptMax = langMax[3];
+        portugueseColors.domain([ptMin, ptMax]);
+
+        // German
+        var deutsche = initView[4].pageviews;
+        var deutscheIds = [];
+        var deutschePvs = [];
+        deutsche.forEach(function(d) {
+            deutscheIds.push( d.id );
+            deutschePvs[d.id] = d.pv;
+        });
+        var deMin = langMin[4];
+        var deMax = langMax[4];
+        deutscheColors.domain([deMin, deMax]);
+
+        return [englishIds, englishPvs, espanolIds, espanolPvs, frenchIds, frenchPvs, 
+            portugueseIds, portuguesePvs, deutscheIds, deutschePvs];
+    }
 }
 
 
@@ -232,6 +317,8 @@ function drawLegend() {
         .text(function(d, i) { return langFull[i]; })
             .attr("font-family", "Tahoma")
             .attr("font-size", "10");
-            // .style("fill", "white");
 }
+
+
+
 
