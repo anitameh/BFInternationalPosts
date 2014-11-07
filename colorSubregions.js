@@ -39,7 +39,13 @@ var color = d3.scale.ordinal()
 	.range(["Indigo", "Crimson", "Gold", "ForestGreen", "Blue"]);
 
 var englishColors = d3.scale.quantize()
-    .range(colorbrewer.Blues[11]);
+    .range(colorbrewer.Blues[9]);
+
+// var englishColors = d3.scale.quantize()
+//     .range(colorbrewer.Blues[11]);
+
+// var espanolColors = d3.scale.log()
+    // .range(colorbrewer.Greens[10]);
 
 var espanolColors = d3.scale.quantize()
     .range(colorbrewer.Greens[10]);
@@ -93,10 +99,12 @@ function ready(error, world, pageViews, uniqueCountries) {
     for (var j=0; j<lastCol.length; j++) {
         // get min
         var firstInfo = firstCol[j].pageviews;
-        langMin.push( d3.min(firstInfo, function(d) { return d.pv }) );
+        var mymin = d3.min(firstInfo, function(d) { return d.pv });
+        langMin.push( myLog(mymin) );
         // get max
         var lastInfo = lastCol[j].pageviews;
-        langMax.push( d3.max(lastInfo, function(d) { return d.pv; }) );
+        var mymax = d3.max(lastInfo, function(d) { return d.pv; });
+        langMax.push( myLog(mymax) );
     }
 
     
@@ -124,21 +132,21 @@ function ready(error, world, pageViews, uniqueCountries) {
       .style("fill", function(d, i) {
         if ( justids.indexOf(d.id) != -1 ) {
             if (englishIds.indexOf(d.id) != - 1) {
-                return d.color = englishColors( englishPvs[d.id] );
+                return d.color = englishColors( myLog(englishPvs[d.id]) );
             }
             else if (espanolIds.indexOf(d.id) != - 1) {
-                return d.color = espanolColors( espanolPvs[d.id] );
+                return d.color = espanolColors( myLog(espanolPvs[d.id]) );
             }
             else if (frenchIds.indexOf(d.id) != - 1) {
-                return d.color = frenchColors( frenchPvs[d.id] );
+                return d.color = frenchColors( myLog(frenchPvs[d.id]) );
 
             }
             else if (portugueseIds.indexOf(d.id) != - 1) {
-                return d.color = portugueseColors( portuguesePvs[d.id] );
+                return d.color = portugueseColors( myLog(portuguesePvs[d.id]) );
 
             }
             else if (deutscheIds.indexOf(d.id) != - 1) {
-                return d.color = deutscheColors( deutschePvs[d.id] );
+                return d.color = deutscheColors( myLog(deutschePvs[d.id]) );
 
             }
         }
@@ -190,21 +198,22 @@ function ready(error, world, pageViews, uniqueCountries) {
             .style("fill", function(d, i) {
                 if ( justids.indexOf(d.id) != -1 ) {
                     if (englishIds.indexOf(d.id) != - 1) {
-                        return d.color = englishColors( englishPvs[d.id] );
+                        return d.color = englishColors( myLog( englishPvs[d.id] ));
+                        // return d.color = englishColors( Math.log(1 + englishPvs[d.id]) );
                     }
                     else if (espanolIds.indexOf(d.id) != - 1) {
-                        return d.color = espanolColors( espanolPvs[d.id] );
+                        return d.color = espanolColors( myLog( espanolPvs[d.id] ));
                     }
                     else if (frenchIds.indexOf(d.id) != - 1) {
-                        return d.color = frenchColors( frenchPvs[d.id] );
+                        return d.color = frenchColors( myLog(frenchPvs[d.id]) );
                         
                     }
                     else if (portugueseIds.indexOf(d.id) != - 1) {
-                        return d.color = portugueseColors( portuguesePvs[d.id] );
+                        return d.color = portugueseColors( myLog(portuguesePvs[d.id]) );
 
                     }
                     else if (deutscheIds.indexOf(d.id) != - 1) {
-                        return d.color = deutscheColors( deutschePvs[d.id] );
+                        return d.color = deutscheColors( myLog(deutschePvs[d.id]) );
                     }
                 }
             });
@@ -296,27 +305,32 @@ function ready(error, world, pageViews, uniqueCountries) {
 
 function drawLegend() {
 
-    var legend = svg.selectAll(".legend")
-            .data(color.domain().slice().reverse())
-        .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) { return "translate(0," + (i*20) + ")"; });
+    // var legend = svg.selectAll(".legend")
+    //         .data(color.domain().slice().reverse())
+    //     .enter().append("g")
+    //         .attr("class", "legend")
+    //         .attr("transform", function(d, i) { return "translate(0," + (i*20) + ")"; });
 
-    legend.append("rect")
-        .attr("x", 18)
-        .attr("y", 380)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", color)
-        .style("opacity", "0.7");
+    // legend.append("rect")
+    //     .attr("x", 18)
+    //     .attr("y", 380)
+    //     .attr("width", 18)
+    //     .attr("height", 18)
+    //     .style("fill", color)
+    //     .style("opacity", "0.7");
 
-    legend.append("text")
-        .attr("x", 40)
-        .attr("y", 389)
-        .attr("dy", ".35em")
-        .text(function(d, i) { return langFull[i]; })
-            .attr("font-family", "Tahoma")
-            .attr("font-size", "10");
+    // legend.append("text")
+    //     .attr("x", 40)
+    //     .attr("y", 389)
+    //     .attr("dy", ".35em")
+    //     .text(function(d, i) { return langFull[i]; })
+    //         .attr("font-family", "Tahoma")
+    //         .attr("font-size", "10");
+}
+
+function myLog(input) {
+    // transform to log-scale so that outliers (e.g. the US has a *lot* of pageviews relative to other countries) don't skew color scale
+    return Math.log(1 + input);
 }
 
 
