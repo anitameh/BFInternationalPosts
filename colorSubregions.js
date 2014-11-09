@@ -41,12 +41,6 @@ var color = d3.scale.ordinal()
 var englishColors = d3.scale.quantize()
     .range(colorbrewer.Blues[9]);
 
-// var englishColors = d3.scale.quantize()
-//     .range(colorbrewer.Blues[11]);
-
-// var espanolColors = d3.scale.log()
-    // .range(colorbrewer.Greens[10]);
-
 var espanolColors = d3.scale.quantize()
     .range(colorbrewer.Greens[10]);
 
@@ -306,35 +300,56 @@ function ready(error, world, pageViews, uniqueCountries) {
 function drawLegend() {
 
     // a position encoding for the key only
-    var x = d3.scale.linear()
-        .domain([0,1])
-        .range([0,50]);
+    // var x = d3.scale.linear()
+    //     .domain([0,1])
+    //     .range([0,15]);
 
-    svg.selectAll("rect")
-        .data(englishColors.range().map(function(color) {
-            var d = englishColors.invertExtent(color);
-            if (d[0] == null) d[0] = x.domain()[0];
-            if (d[1] == null) d[1] = x.domain()[1];
-            return d;
-        }))
-        .enter().append("rect")
-            .attr("height", 8)    
-            .attr("x", function(d) { return 80+x(d[0]); })
-            .attr("y", height - 70)
-            .attr("width", function(d) { return (x(d[1]) - x(d[0])); })
-            .attr("height", "10px")
-            .style("fill", function(d) { return englishColors(d[0]); });
+    var colorScales = [englishColors, espanolColors, frenchColors, portugueseColors, deutscheColors];
+    var thisColorScale; 
+    for (var k=0; k<colorScales.length; k++) {
+        var rectName = "rect" + String(k); // get rectangle
+        svg.selectAll(rectName)
+            .data(colorScales[k].range().map(function(color) {
+                var d = colorScales[k].invertExtent(color);
+                if (d[0] == null) d[0] = x.domain()[0];
+                if (d[1] == null) d[1] = x.domain()[1];
+                return d;
+            }))
+            .enter().append("rect")
+                .attr("height", 8)
+                // .attr("x", function(d) { return 80 + x(d[0]); })
+                .attr("x", function(d, i) { return 100+20*i; })
+                .attr("y", height - 70 + (10*k))
+                .attr("width", function(d) { 
+                    // console.log( (x(d[1]) - x(d[0])) );
+                    return 20; 
+                })
+                .attr("height", "10px")
+                .style("fill", function(d) { return colorScales[k](d[0]); });
+    }
      
-     // add legend labels   
+    // add legend language labels   
     for (var i=0; i<langFull.length; i++) {
         svg.append("text")
             .attr("class", "caption")
             .attr("x", 40)
             .attr("y", height - 60 + (10*i))
-            .attr("font-style", "sans-serif")
             .text(langFull[i]);
+        
+        svg.append("text")
+            .attr("class", "caption")
+            .attr("x", 305)
+            .attr("y", height - 62 + (10*i))
+            .text( Math.round(Math.exp(langMax[i]) - 1) );
     }
-    
+
+    // legend title
+    svg.append("text")
+        .attr("class", "captionTitle")
+        .attr("x", 40)
+        .attr("y", height-75)
+        .text("Pageviews");
+
 }
 
 function myLog(input) {
