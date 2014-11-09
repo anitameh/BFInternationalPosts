@@ -1,6 +1,6 @@
 /**
  * @author: Anita Mehrotra
- * @date: November 3, 2014
+ * @date: November 8, 2014
  */
 
 // init: set up svg and map params
