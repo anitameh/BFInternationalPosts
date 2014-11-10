@@ -1,6 +1,6 @@
 /**
  * @author: Anita Mehrotra
- * @date: November 8, 2014
+ * @date: November 10, 2014
  */
 
 // init: set up svg and map params
@@ -20,17 +20,6 @@ var path = d3.geo.path()
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
-
-
-svg.append("path")
-    .datum(graticule)
-    .attr("class", "graticule")
-    .attr("d", path);
- 
-svg.append("path")
-    .datum(graticule.outline)
-    .attr("class", "graticule outline")
-    .attr("d", path);
 
 
 // color scales
@@ -57,13 +46,17 @@ var langFull = ["English", "Espanol", "French", "Portuguese", "Deutsche"];
 var firstCol,
     lastCol,
     langMin = [],
-    langMax = [];
+    langMax = [], 
+    remainingIds = [];
 
 // load data
 queue()
     .defer(d3.json, "data/world-50m.json")
     .defer(d3.json, "data/daily-aggregated-data.js")
     .defer(d3.csv, "data/unique-countries.csv")
+    .defer(d3.csv, "data/remaining-countries.csv", function(d) {
+        remainingIds.push( parseInt(d.id) );
+    })
     .await(ready);
 
 
@@ -203,6 +196,32 @@ function ready(error, world, pageViews, uniqueCountries) {
 
         pvMin++;
 
+        if (pvMin == pvMax+1) {
+            // once it hits the end, add in the remaining countries and the graticule
+            svg.append("path")
+                .datum(graticule)
+                .attr("class", "graticule")
+                .attr("d", path);
+             
+            svg.append("path")
+                .datum(graticule.outline)
+                .attr("class", "graticule outline")
+                .attr("d", path);
+
+            // color remaining countries
+            d3.selectAll(".country").transition()
+                .duration(200)
+                .style("fill", function(d, i) {
+                    if (remainingIds.indexOf(d.id) != -1) {
+                        return d.color = "lightgrey";
+                    }
+                    else {
+                        return d.color = d.color;
+                    }
+                });
+
+        }
+
     }
 
     // use this to activate update() function (method inherited from JQuery slider)
@@ -287,11 +306,6 @@ function ready(error, world, pageViews, uniqueCountries) {
 
 
 function drawLegend() {
-
-    // a position encoding for the key only
-    // var x = d3.scale.linear()
-    //     .domain([0,1])
-    //     .range([0,15]);
 
     var colorScales = [englishColors, espanolColors, frenchColors, portugueseColors, deutscheColors];
     var thisColorScale; 
