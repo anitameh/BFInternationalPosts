@@ -42,6 +42,8 @@ def main():
 	# begin building dataframe for output
 	outputDF = pd.DataFrame(columns = ["id", "Country", "Language"])
 
+
+
 	# 1. Add in COUNTRY names
 	outputDF.Country = np.unique((data.Country).tolist())
 
@@ -105,7 +107,12 @@ def main():
 		if ( type(outputDF.Language[j]) == float ):
 			outputDF.Language[j] = "en"
 
+
+
+	# output to csv
 	outputDF.to_csv("data/just-daily-totals.csv", index=False)
+
+
 
 if __name__ == '__main__':
 	main()
