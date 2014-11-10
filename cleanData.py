@@ -20,15 +20,17 @@ __countryID__ | __country__ | __language__ | __cumulative PV's, day 1__ | ... | 
 
 def main():
 	'''
-	:Str input_file: pathname to data file (e.g. "data/daily-original-data.csv")
-	:int numdays: number of days in the time period that the data was obtained from Google Analytics
-	:Str world_names: pathname to country names and its ISO 3166-1 numeric id's 
-						(can be found at http://www.iso.org/iso/country_codes.htm)
+	:Str input_file: Pathname to data file (e.g. "data/daily-original-data.csv")
+	:int numdays: Number of days in the time period that the data was obtained from Google Analytics
+	:Str world_names: Pathname to country names and its ISO 3166-1 numeric id's 
+						(can be found at http://www.iso.org/iso/country_codes.htm);
+						For this project, use Anita's modified version w/ colloquial country names
+						(can be found at https://gist.github.com/anitameh/78fda45d35ba2286c3f4#file-unique-countries-csv)
 
 	:rtype: csv
-	:return outputDF: output a dataframe in the form of a csv, to the data directory ("just-daily-totals.csv")
+	:return outputDF: Output a dataframe in the form of a csv, to the data directory ("just-daily-totals.csv")
 	'''
-	input_file, numdays, world_names = sys.argv[1], sys.argv[2], sys.argv[3]
+	input_file, numdays, world_names = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 
 	# ingest data and get rid of extra rows
 	data = pd.read_csv(input_file, skiprows=6)
@@ -40,7 +42,7 @@ def main():
 	data = data[data.Country != "(not set)"] # remove (not set) rows
 
 	# begin building dataframe for output
-	outputDF = pd.DataFrame(columns = ["id", "Country", "Language"])
+	outputDF = pd.DataFrame(columns = ["Country", "Language"])
 
 
 
@@ -77,9 +79,8 @@ def main():
 	theid = pd.read_csv(world_names)
 	theid.columns = ["id", "Country"]
 
-	subset_countries = pd.DataFrame(outputDF.Country)
-	ids_merged = subset_countries.merge(theid)
-	outputDF.id = ids_merged.id
+	IDmerged = outputDF.merge(theid, on="Country")
+	outputDF = IDmerged
 
 	# 4. LANGUAGE
 	# spanish
@@ -110,7 +111,7 @@ def main():
 
 
 	# output to csv
-	outputDF.to_csv("data/just-daily-totals.csv", index=False)
+	outputDF.to_csv("data/just-daily-totals-data.csv", index=False)
 
 
 

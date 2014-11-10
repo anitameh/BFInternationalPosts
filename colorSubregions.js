@@ -33,13 +33,9 @@ svg.append("path")
     .attr("d", path);
 
 
-// color scale
-var color = d3.scale.ordinal()
-	.domain(["en", "es", "pt", "de", "fr"])
-	.range(["Indigo", "Crimson", "Gold", "ForestGreen", "Blue"]);
-
+// color scales
 var englishColors = d3.scale.quantize()
-    .range(colorbrewer.Blues[9]);
+    .range(colorbrewer.Blues[10]);
 
 var espanolColors = d3.scale.quantize()
     .range(colorbrewer.Greens[10]);
@@ -58,8 +54,7 @@ var firstScale = d3.scale.linear()
 
 var langFull = ["English", "Espanol", "French", "Portuguese", "Deutsche"];
 
-var firstWeekOfYear,
-    firstCol,
+var firstCol,
     lastCol,
     langMin = [],
     langMax = [];
@@ -67,15 +62,12 @@ var firstWeekOfYear,
 // load data
 queue()
     .defer(d3.json, "data/world-50m.json")
-    .defer(d3.json, "data/aggregated-data.js")
+    .defer(d3.json, "data/daily-aggregated-data.js")
     .defer(d3.csv, "data/unique-countries.csv")
     .await(ready);
 
 
 function ready(error, world, pageViews, uniqueCountries) {
-
-    // get label
-    // var label = d3.select("#week");
 
 	// draw map
 	var countries = topojson.feature(world, world.objects.countries).features;
@@ -86,24 +78,23 @@ function ready(error, world, pageViews, uniqueCountries) {
         justids.push(parseInt(d.id));
     });
 
-
     // get min + max pageviews
     firstCol = pageViews[0].info;
     lastCol = pageViews[4].info;
     for (var j=0; j<lastCol.length; j++) {
+
         // get min
         var firstInfo = firstCol[j].pageviews;
         var mymin = d3.min(firstInfo, function(d) { return d.pv });
         langMin.push( myLog(mymin) );
+
         // get max
         var lastInfo = lastCol[j].pageviews;
         var mymax = d3.max(lastInfo, function(d) { return d.pv; });
         langMax.push( myLog(mymax) );
     }
 
-    
-    // initially color based on color of language
-    firstWeekOfYear = pageViews[0].week;
+    // first view
     var firstColoredMap = makeColorMap(0);
     var englishIds = firstColoredMap[0],
         englishPvs = firstColoredMap[1],
@@ -150,9 +141,9 @@ function ready(error, world, pageViews, uniqueCountries) {
     // add legend
     drawLegend();
 
-    // make slider
-    var pvMax = d3.max(pageViews, function(d) { return d.week }), 
-        pvMin = d3.min(pageViews, function(d) { return d.week });
+    // animate slider
+    var pvMax = pageViews.length-1, 
+        pvMin = 0;
 
     var slider = d3.select("#slider")
             .append("input")
@@ -162,17 +153,16 @@ function ready(error, world, pageViews, uniqueCountries) {
         .attr("min", pvMin)
         .style("width", "400px")
         .property("value", pvMin)
-        .on("change", function(d) {
+        .on("change", function(d, i) {
             pvMin = this.value;
         });
 
-    // update
+    // update (inherited from jQuery UI slider)
     function update() {
 
-        // label.text(pvMin); // update label
-
-        var currentWeek = pvMin - firstWeekOfYear;
+        var currentWeek = pvMin;
         var coloredMap = makeColorMap(currentWeek);
+
         var englishIds = coloredMap[0],
             englishPvs = coloredMap[1],
             espanolIds = coloredMap[2],
@@ -193,7 +183,6 @@ function ready(error, world, pageViews, uniqueCountries) {
                 if ( justids.indexOf(d.id) != -1 ) {
                     if (englishIds.indexOf(d.id) != - 1) {
                         return d.color = englishColors( myLog( englishPvs[d.id] ));
-                        // return d.color = englishColors( Math.log(1 + englishPvs[d.id]) );
                     }
                     else if (espanolIds.indexOf(d.id) != - 1) {
                         return d.color = espanolColors( myLog( espanolPvs[d.id] ));
@@ -317,15 +306,13 @@ function drawLegend() {
             }))
             .enter().append("rect")
                 .attr("height", 8)
-                // .attr("x", function(d) { return 80 + x(d[0]); })
                 .attr("x", function(d, i) { return 100+20*i; })
                 .attr("y", height - 70 + (10*k))
-                .attr("width", function(d) { 
-                    // console.log( (x(d[1]) - x(d[0])) );
-                    return 20; 
-                })
+                .attr("width", 20)
                 .attr("height", "10px")
-                .style("fill", function(d) { return colorScales[k](d[0]); });
+                .style("fill", function(d, i) { 
+                    return colorScales[k].range()[i];
+                });
     }
      
     // add legend language labels   
@@ -353,7 +340,8 @@ function drawLegend() {
 }
 
 function myLog(input) {
-    // transform to log-scale so that outliers (e.g. the US has a *lot* of pageviews relative to other countries) don't skew color scale
+    // transform to log-scale so that outliers (e.g. the US has a *lot* of pageviews relative to other countries) 
+    //  don't skew color scale
     return Math.log(1 + input);
 }
 
