@@ -47,20 +47,23 @@ var firstCol,
     lastCol,
     langMin = [],
     langMax = [], 
+    uniqueCountries = [],
     remainingIds = [];
 
 // load data
 queue()
     .defer(d3.json, "data/world-50m.json")
     .defer(d3.json, "data/daily-aggregated-data.js")
-    .defer(d3.csv, "data/unique-countries.csv")
+    .defer(d3.csv, "data/unique-countries.csv", function(d) {
+    	uniqueCountries[ parseInt(d.id) ] = d;
+    })
     .defer(d3.csv, "data/remaining-countries.csv", function(d) {
         remainingIds.push( parseInt(d.id) );
     })
     .await(ready);
 
 
-function ready(error, world, pageViews, uniqueCountries) {
+function ready(error, world, pageViews) {
 
 	// draw map
 	var countries = topojson.feature(world, world.objects.countries).features;
@@ -100,41 +103,68 @@ function ready(error, world, pageViews, uniqueCountries) {
         deutscheIds = firstColoredMap[8],
         deutschePvs = firstColoredMap[9];
         
+	// add tooltip
+	var div = d3.select("body").append("div")
+		.attr("class", "tooltip")
+		.style("opacity", 0);
 
     // draw initial world map with initial colors
-    svg.selectAll(".country")
-      .data(countries)
-    .enter().insert("path", ".graticule")
-      .attr("class", "country")
-      .attr("d", path)
-      .style("fill", function(d, i) {
-        if ( justids.indexOf(d.id) != -1 ) {
-            if (englishIds.indexOf(d.id) != - 1) {
-                return d.color = englishColors( myLog(englishPvs[d.id]) );
-            }
-            else if (espanolIds.indexOf(d.id) != - 1) {
-                return d.color = espanolColors( myLog(espanolPvs[d.id]) );
-            }
-            else if (frenchIds.indexOf(d.id) != - 1) {
-                return d.color = frenchColors( myLog(frenchPvs[d.id]) );
+    var drawCountries = svg.selectAll(".country")
+	      .data(countries)
+	    .enter().insert("path", ".graticule")
+	      .attr("class", "country")
+	      .attr("d", path)
+	      .style("fill", function(d, i) {
+	        if ( justids.indexOf(d.id) != -1 ) {
+	            if (englishIds.indexOf(d.id) != - 1) {
+	                return d.color = englishColors( myLog(englishPvs[d.id]) );
+	            }
+	            else if (espanolIds.indexOf(d.id) != - 1) {
+	                return d.color = espanolColors( myLog(espanolPvs[d.id]) );
+	            }
+	            else if (frenchIds.indexOf(d.id) != - 1) {
+	                return d.color = frenchColors( myLog(frenchPvs[d.id]) );
 
-            }
-            else if (portugueseIds.indexOf(d.id) != - 1) {
-                return d.color = portugueseColors( myLog(portuguesePvs[d.id]) );
+	            }
+	            else if (portugueseIds.indexOf(d.id) != - 1) {
+	                return d.color = portugueseColors( myLog(portuguesePvs[d.id]) );
 
-            }
-            else if (deutscheIds.indexOf(d.id) != - 1) {
-                return d.color = deutscheColors( myLog(deutschePvs[d.id]) );
+	            }
+	            else if (deutscheIds.indexOf(d.id) != - 1) {
+	                return d.color = deutscheColors( myLog(deutschePvs[d.id]) );
 
-            }
-        }
-      })
-      .style("opacity", "0.75");    
+	            }
+	        }
+	      })
+	      .style("opacity", "0.75");    
 
-    // add legend
-    drawLegend();
 
-    // slider
+	// add tooltip on hover
+	drawCountries
+		.on("mouseover", function(d) {
+			div.transition()
+				.duration(200)
+				.style("opacity", 0.85);
+			div.html( function() {
+				if (uniqueCountries[d.id] != -1) return (uniqueCountries[d.id].name).toUpperCase(); 
+				})
+				.style("left", (d3.event.pageX) + "px")
+				.style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on("mouseout", function(d) {
+			div.transition()
+				.duration(400)
+				.style("opacity", 0);
+		});
+
+
+
+	// add legend
+	drawLegend();
+
+
+
+    // add slider
     var pvMax = pageViews.length-1, 
         pvMin = 0,
         sliderWidth = 400;
@@ -221,6 +251,7 @@ function ready(error, world, pageViews, uniqueCountries) {
         pvMin++;
 
         if (pvMin == pvMax+1) {
+
             // once it hits the end, add in the remaining countries and the graticule
             svg.append("path")
                 .datum(graticule)
@@ -365,7 +396,9 @@ function drawLegend() {
             .attr("class", "caption")
             .attr("x", 305)
             .attr("y", height - 92 + (10*i))
-            .text( Math.round(Math.exp(langMax[i]) - 1) );
+            // .text( Math.round(Math.exp(langMax[i]) - 1) );
+            .text( Math.round(langMax[i]) );
+
     }
 
     // legend title
@@ -373,7 +406,7 @@ function drawLegend() {
         .attr("class", "captionTitle")
         .attr("x", 40)
         .attr("y", height-105)
-        .text("Pageviews");
+        .text("log(Pageviews)");
 
 }
 
