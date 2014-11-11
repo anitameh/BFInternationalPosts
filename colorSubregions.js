@@ -134,9 +134,10 @@ function ready(error, world, pageViews, uniqueCountries) {
     // add legend
     drawLegend();
 
-    // animate slider
+    // slider
     var pvMax = pageViews.length-1, 
-        pvMin = 0;
+        pvMin = 0,
+        sliderWidth = 400;
 
     var slider = d3.select("#slider")
             .append("input")
@@ -144,11 +145,34 @@ function ready(error, world, pageViews, uniqueCountries) {
         .attr("type", "range")
         .attr("max", pvMax)
         .attr("min", pvMin)
-        .style("width", "400px")
+        .style("width", String(sliderWidth) + "px")
         .property("value", pvMin)
         .on("change", function(d, i) {
             pvMin = this.value;
         });
+
+    // label slider
+   	var dateMin = String(d3.min(pageViews, function(d) { return d.week; })),
+   		dateMax = String(d3.max(pageViews, function(d) { return d.week; }));
+
+   	dateMin = new Date( dateMin.slice(0,4) + "-" + dateMin.slice(4,6) + "-" + dateMin.slice(6,8));
+   	dateMax = new Date( dateMax.slice(0,4) + "-" + dateMax.slice(4,6) + "-" + dateMax.slice(6,8));
+
+   	// this is super hacky
+   	svg.append("text")
+		.attr("x", width/2 - sliderWidth/2 - 30)
+		.attr("y", 9)   		
+   		.text( String(dateMin).slice(0,16) )
+   		.attr("font-family", "Trebuchet MS, Helvetica, sans-serif")
+   		.attr("font-size", "11px");
+
+   	svg.append("text")
+		.attr("x", width/2 + sliderWidth/2 - 30)
+		.attr("y", 9)   		
+   		.text( String(dateMax).slice(0,16) )
+   		.attr("font-family", "Trebuchet MS, Helvetica, sans-serif")
+   		.attr("font-size", "11px");
+
 
     // update (inherited from jQuery UI slider)
     function update() {
@@ -229,7 +253,7 @@ function ready(error, world, pageViews, uniqueCountries) {
         if (pvMin <= pvMax) {
             update();
         }
-    }, 1000);
+    }, 400);
     
 
     function makeColorMap(i) {
@@ -321,7 +345,7 @@ function drawLegend() {
             .enter().append("rect")
                 .attr("height", 8)
                 .attr("x", function(d, i) { return 100+20*i; })
-                .attr("y", height - 70 + (10*k))
+                .attr("y", height - 100 + (10*k))
                 .attr("width", 20)
                 .attr("height", "10px")
                 .style("fill", function(d, i) { 
@@ -334,13 +358,13 @@ function drawLegend() {
         svg.append("text")
             .attr("class", "caption")
             .attr("x", 40)
-            .attr("y", height - 60 + (10*i))
-            .text(langFull[i]);
+            .attr("y", height - 90 + (10*i))
+            .text( langFull[i].toUpperCase() );
         
         svg.append("text")
             .attr("class", "caption")
             .attr("x", 305)
-            .attr("y", height - 62 + (10*i))
+            .attr("y", height - 92 + (10*i))
             .text( Math.round(Math.exp(langMax[i]) - 1) );
     }
 
@@ -348,7 +372,7 @@ function drawLegend() {
     svg.append("text")
         .attr("class", "captionTitle")
         .attr("x", 40)
-        .attr("y", height-75)
+        .attr("y", height-105)
         .text("Pageviews");
 
 }

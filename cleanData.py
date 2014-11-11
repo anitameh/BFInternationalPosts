@@ -12,6 +12,7 @@ ASSUMPTIONS ABOUT THE DATA:
 * Data is sorted chronologically by date (beginning date first)
 * Data is coming from Google Analytics
 * A separate directory title "data" exists
+* Dates are in standard ISO format without dashes (e.g. YYYYMMDD)
 
 Final format will look like this:
 
