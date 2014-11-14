@@ -28,9 +28,7 @@
         var languages = ["en", "es", "fr", "pt", "de"];
 
         // read in data
-        // d3.csv("data/just-daily-totals-data.csv", function(error, data) {
-        // d3.csv("data/diy-remodel-just-daily-totals-data.csv", function(error, data) {
-        d3.csv("data/gurl-mistakes-daily-totals-data.csv", function(error, data) {
+        d3.csv("new-data/totals-daily-city.csv", function(error, data) {
 
             var output = [];
             var weeks = []; // depending on the data, this could be a misnomer. Inputted data could also be daily
@@ -99,13 +97,11 @@
                     });
                 }
             });
-            // console.log("output:");
-            // console.log(output);
+            console.log("output:");
+            console.log(output);
 
             // output as json
-            // saveToFile(output, "daily-aggregated-data.js");
-            // saveToFile(output, "diy-remodel-daily-aggregated-data.js");
-            saveToFile(output, "gurl-mistakes-daily-aggregated-data.js");
+            saveToFile(output, "totals-daily-city.js");
             
 
         });

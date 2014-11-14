@@ -25,7 +25,7 @@ def main():
 	:int numdays: Number of days in the time period that the data was obtained from Google Analytics
 	:Str world_names: Pathname to country names and its ISO 3166-1 numeric id's 
 						(can be found at http://www.iso.org/iso/country_codes.htm);
-						For this project, use Anita's modified version w/ colloquial country names
+						For this project, use Anita's modified version with colloquial country names
 						(can be found at https://gist.github.com/anitameh/78fda45d35ba2286c3f4#file-unique-countries-csv)
 
 	:rtype: csv
@@ -112,9 +112,23 @@ def main():
 
 
 	# output to csv
-	outputDF.to_csv("data/just-daily-totals-data.csv", index=False)
+	outputDF.to_csv("data/diy-remodel-daily-totals-data.csv", index=False)
 
 
+	# output remaining countries to csv
+	subset_countries = pd.DataFrame(outputDF.Country)
+	
+	# get indices of existing countries
+	listofindices = []
+	for i in xrange(len(subset_countries)):
+	    listofindices.append( np.where(theid.Country == subset_countries.Country[i])[0][0] ) 
+	array_theid = np.array((theid.Country).tolist())
+
+	# mask to output remaining countries
+	my_mask = np.ma.masked_array(array_theid, mask = False)
+	my_mask.mask[np.array(listofindices)] = True
+	remaining_countries = theid[~my_mask.mask]
+	remaining_countries.to_csv("data/diy-remodel-remaining-countries.csv", index=False)
 
 if __name__ == '__main__':
 	main()
