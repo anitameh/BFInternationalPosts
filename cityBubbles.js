@@ -50,20 +50,28 @@ var firstCol,
     uniqueCountries = [],
     remainingIds = [];
 
+
+// load data
+d3.json("new-data/totals-daily-city.js", function(error, data) {
+	
+	console.log("error");
+	console.log(error);
+	
+	console.log("data");
+	console.log(data);
+})
+
 // load data
 queue()
-    .defer(d3.json, "data/world-50m.json")
-    .defer(d3.json, "data/daily-aggregated-data.js")
-    .defer(d3.csv, "data/unique-countries.csv", function(d) {
-    	uniqueCountries[ parseInt(d.id) ] = d;
-    })
-    .defer(d3.csv, "data/remaining-countries.csv", function(d) {
-        remainingIds.push( parseInt(d.id) );
-    })
+    .defer(d3.json, "new-data/world-50m.json")
+    .defer(d3.json, "new-data/totals-daily-city.js")
     .await(ready);
 
 
 function ready(error, world, pageViews) {
+
+	console.log("pageViews");
+	console.log(pageViews);
 
 	// draw map
 	var countries = topojson.feature(world, world.objects.countries).features;
@@ -108,34 +116,12 @@ function ready(error, world, pageViews) {
 		.attr("class", "tooltip")
 		.style("opacity", 0);
 
-    // draw initial world map with initial colors
+    // draw base world map
     var drawCountries = svg.selectAll(".country")
 	      .data(countries)
 	    .enter().insert("path", ".graticule")
 	      .attr("class", "country")
 	      .attr("d", path)
-	      .style("fill", function(d, i) {
-	        if ( justids.indexOf(d.id) != -1 ) {
-	            if (englishIds.indexOf(d.id) != - 1) {
-	                return d.color = englishColors( myLog(englishPvs[d.id]) );
-	            }
-	            else if (espanolIds.indexOf(d.id) != - 1) {
-	                return d.color = espanolColors( myLog(espanolPvs[d.id]) );
-	            }
-	            else if (frenchIds.indexOf(d.id) != - 1) {
-	                return d.color = frenchColors( myLog(frenchPvs[d.id]) );
-
-	            }
-	            else if (portugueseIds.indexOf(d.id) != - 1) {
-	                return d.color = portugueseColors( myLog(portuguesePvs[d.id]) );
-
-	            }
-	            else if (deutscheIds.indexOf(d.id) != - 1) {
-	                return d.color = deutscheColors( myLog(deutschePvs[d.id]) );
-
-	            }
-	        }
-	      })
 	      .style("opacity", "0.75");    
 
 
@@ -157,11 +143,28 @@ function ready(error, world, pageViews) {
 				.style("opacity", 0);
 		});
 
+	svg.append("path")
+			.datum(graticule)
+			.attr("class", "graticule")
+			.attr("d", path);
+
+	svg.append("path")
+			.datum(graticule.outline)
+			.attr("class", "graticule outline")
+			.attr("d", path);
+
+
+	
+	// draw city points
+	for (var i in pageViews) {
+
+		var projected = projection([ parseFloat(pageViews[i].) ])
+
+	}
 
 
 	// add legend
 	drawLegend();
-
 
 
     // add slider
@@ -202,6 +205,7 @@ function ready(error, world, pageViews) {
    		.text( String(dateMax).slice(0,16) )
    		.attr("font-family", "Trebuchet MS, Helvetica, sans-serif")
    		.attr("font-size", "11px");
+
 
 
     // update (inherited from jQuery UI slider)
