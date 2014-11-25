@@ -28,7 +28,7 @@
         var languages = ["en", "es", "fr", "pt", "de"];
 
         // read in data
-        d3.csv("new-data/totals-daily-city.csv", function(error, data) {
+        d3.csv("new-data/all-city-language-data.csv", function(error, data) {
 
             var output = [];
             var weeks = []; // depending on the data, this could be a misnomer. Inputted data could also be daily.
@@ -50,19 +50,23 @@
 
                     // iterate through weeks
                     for (var i=0; i<weeks.length; i++) {
-                        // create weekly dictionary
-                        var weeklyData = {};
-                        // store week #
-                        weeklyData["week"] = weeks[i];
+                        
+                        var weeklyData = {}; // create weekly dictionary
+                        weeklyData["week"] = weeks[i]; // store week #
+
                         // other info
                         var info = [];
                         for (var j=0; j<languages.length; j++) {
-                            var langDict = {};
+
                             // language
+                            var langDict = {};
                             langDict["language"] = languages[j];
+                            
                             // pageviews
                             var pageviews = [];
-                            if (d.Language == languages[j]) {
+                            var langColName = "Language" + String(weeks[i]);
+
+                            if (d[langColName] == languages[j]) {
                                 var inner = {};
                                 inner["city"] = d.City;
                                 inner["pv"] = parseInt( d[weeks[i]] );
@@ -82,7 +86,8 @@
                     output.forEach(function(dd) {
                         for (var i=0; i<weeks.length; i++) {
                             if (dd.week == keys[i]) {
-                                var indexOfLang = languages.indexOf(d.Language);
+                                var langColName = "Language" + String(weeks[i]);
+                                var indexOfLang = languages.indexOf( d[langColName] );
                                 var thisLangDict = dd.info[indexOfLang];
 
                                 // push info
@@ -103,7 +108,7 @@
             console.log(output);
 
             // output as json
-            saveToFile(output, "totals-daily-city.js");
+            saveToFile(output, "all-city-language-data.js");
             
 
         });

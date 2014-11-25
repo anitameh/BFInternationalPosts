@@ -21,18 +21,23 @@ var path = d3.geo.path()
 // initialize global variables
 var SLIDERWIDTH = 500,
     GLOBALMIN = 0,
-    GLOBALMAX = 198489;
+    GLOBALMAX = 12941;
 
 // load and display the World
 queue()
     .defer(d3.json, "new-data/world-50m.json")
-    .defer(d3.json, "new-data/totals-daily-city.js")
+    .defer(d3.json, "new-data/all-city-language-data.js")
     .defer(d3.csv, "new-data/cities.csv")
     .await(ready);
 
 
 // create viz
 function ready(error, world, pageviews, cities) {
+
+
+
+    // console.log(pageviews);
+
 
 
     // initialize variables
@@ -44,7 +49,7 @@ function ready(error, world, pageviews, cities) {
     // scales
     var sizeScale = d3.scale.linear()
         .domain([GLOBALMIN, GLOBALMAX])
-        .range([2, 100]);
+        .range([0, 300]);
 
 
 
@@ -86,6 +91,9 @@ function ready(error, world, pageviews, cities) {
             return sizeScale( pageviews0[d.City] );
         })
         .attr("class", "circle");
+        // .attr("fill", function(d) {
+        //     console.log(d);
+        // });
 
 
 
@@ -124,71 +132,82 @@ function ready(error, world, pageviews, cities) {
             myMin = this.value;
         });
 
+    // play button
+    d3.select("#play")
+        .attr("title", "Play")
+        .on("click", function() {
+            console.log("hey");
+        });
+
+
 
 
     // update slider and bubbles (inherited from jQuery UI slider)
-    function update() {
+    // function update() {
 
-        // update slider value
-        var currently = myMin;
-        if (currently === myMax) {
-          return false;
-        }
+    //     // update slider value
+    //     var currently = myMin;
+    //     if (currently === myMax) {
+    //       return false;
+    //     }
 
-        slider.property("value", myMin); 
+    //     slider.property("value", myMin); 
 
-        // get pageviews info
-        var currentdate = pageviews[currently].week;
-        var currentPvs = [];
-        pageviews.forEach(function(d) {
-            if (d.week == currentdate) {
-                pvs = (d.info[0]).pageviews;
-                pvs.forEach(function(dd) {
-                    currentPvs[dd.city] = dd.pv;
-                });
-            }
-        });
+    //     // get pageviews info
+    //     var currentdate = pageviews[currently].week;
+    //     var currentPvs = [];
+    //     pageviews.forEach(function(d) {
+    //         if (d.week == currentdate) {
+    //             pvs = (d.info[0]).pageviews;
+    //             pvs.forEach(function(dd) {
+    //                 currentPvs[dd.city] = dd.pv;
+    //             });
+    //         }
+    //     });
 
-        // update bubble size
-        d3.selectAll(".circle").transition()
-            .duration(200)
-            .attr("r", function(d, i) {
-              return sizeScale( currentPvs[d.City] );
-            });
-
-
-        // update hover tools
-        bubbles
-            .on("mouseover", function(d) {
-              div.transition()
-                  .duration(200)
-                  .style("opacity", 0.85);
-              div.html( function() { 
-                  return "<strong>" + d.City + "</strong>" + "<br> <font size='1'>" + 
-                    currentPvs[d.City] + " pageviews </font>" +
-                    "<br> <font size='1'><font color='grey'> DAY " + String(currently) + "</font></font>"; 
-                })
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on("mouseout", function(d) {
-              div.transition()
-                  .duration(350)
-                  .style("opacity", 0);
-            });
-
-        myMin++;
+    //     // update bubble size
+    //     d3.selectAll(".circle").transition()
+    //         .duration(200)
+    //         .attr("r", function(d, i) {
+    //             return sizeScale( currentPvs[d.City] );
+    //         });
+    //         // .attr("fill", function() {
+    //         //   return colorScale( )
+    //         // });
 
 
+    //     // update hover tools
+    //     bubbles
+    //         .on("mouseover", function(d) {
+    //           div.transition()
+    //               .duration(200)
+    //               .style("opacity", 0.85);
+    //           div.html( function() { 
+    //               return "<strong>" + d.City + "</strong>" + "<br> <font size='1'>" + 
+    //                 currentPvs[d.City] + " pageviews </font>" +
+    //                 "<br> <font size='1'><font color='grey'> DAY " + String(currently) + "</font></font>"; 
+    //             })
+    //             .style("left", (d3.event.pageX) + "px")
+    //             .style("top", (d3.event.pageY - 28) + "px");
+    //         })
+    //         .on("mouseout", function(d) {
+    //           div.transition()
+    //               .duration(350)
+    //               .style("opacity", 0);
+    //         });
 
-    }
+    //     myMin++;
 
-    // use this to activate update() (also inherited from jQuery slider)
-    setInterval( function() {
-        if (myMin <= myMax) {
-            update();
-        }
-    }, 400);
+
+
+    // }
+
+    // // use this to activate update() (also inherited from jQuery slider)
+    // setInterval( function() {
+    //     if (myMin <= myMax) {
+    //         update();
+    //     }
+    // }, 400);
 
     
 }

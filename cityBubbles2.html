@@ -27,15 +27,17 @@
                 fill: #ccc;
                 fill-opacity: 0.75;
                 stroke: #fff;       
-                stroke-width: .5px;
+                stroke-width: .8px;
                 stroke-linejoin: round;
             }
+
+
 
             /* bubbles */
             circle {
                 fill: #67a9cf;
-                fill-opacity: 0.6;
-                stroke: white;
+                fill-opacity: 0.35;
+                stroke: #67a9cf;
                 stroke-width: 0.75px;
             }
 
@@ -43,6 +45,8 @@
                 stroke: black;
                 stroke-width: 2;
             }
+
+
 
             /* slider */
             #slider {
@@ -61,10 +65,7 @@
                 fill: grey;
             }
 
-            /* legend */
-            .rect0, .rect1, .rect2, .rect3, .rect4 {
-                fill: none;
-            }
+
 
             /* tooltip */
 			div.tooltip {
@@ -81,11 +82,26 @@
 				border-radius: 8px;
 				pointer-events: none;     
 			}
+
+
+            /* play buttom */
+            #play {
+                display: inline-block;
+                vertical-align: middle;
+                margin-top: 20px;
+                margin-left: 20px;
+                width: 53px;
+                height: 53px;
+                background-image: url( images/play.png);
+                border-radius: 5px;
+                cursor: pointer;
+            }
           
 
         </style>
 
         <div id="slider"></div>
+        <div id="play"></div>
         <script src="cityBubbles2.js"></script>
 
     </body>
