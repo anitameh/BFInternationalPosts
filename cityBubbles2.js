@@ -32,24 +32,21 @@ queue()
 
 
 // create viz
-function ready(error, world, pageviews, cities) {
+function ready(error, world, PV, cities) {
 
-
-
-    // console.log(pageviews);
 
 
 
     // initialize variables
     var myMin = 0,
-        myMax = pageviews.length;
+        myMax = PV.length;
 
 
 
     // scales
     var sizeScale = d3.scale.linear()
         .domain([GLOBALMIN, GLOBALMAX])
-        .range([0, 300]);
+        .range([0, 100]);
 
 
 
@@ -69,31 +66,17 @@ function ready(error, world, pageviews, cities) {
 
 
 
-    // get data for first day and draw corresponding bubbles
-    var firstdate = pageviews[0].week;
-    var pageviews0 = [];
-    pageviews.forEach(function(d) {
-        if (d.week == firstdate) {
-            pvs = (d.info[0]).pageviews;
-            pvs.forEach(function(dd) {
-                pageviews0[dd.city] = dd.pv;
-            });
-        }
-    });
-
+    // console.log(pageviews[0]);
+    var currentDate = 0;
+    var currentData = (PV[ currentDate ].info)[0].pageviews; // 0 => we are assuming the post was first written in english
 
     var bubbles = svg.selectAll("circle")
-        .data(cities)
+        .data( currentData )
         .enter().append("circle")
-        .attr("cx", function(d) { return projection([d.Longitude, d.Latitude])[0]; })
-        .attr("cy", function(d) { return projection([d.Longitude, d.Latitude])[1]; })
-        .attr("r", function(d, i) {
-            return sizeScale( pageviews0[d.City] );
-        })
+        .attr("cx", function(d) { return projection([d.LON, d.LAT])[0]; })
+        .attr("cy", function(d) { return projection([d.LON, d.LAT])[1]; })
+        .attr("r", function(d) { return sizeScale( d.pv ); })
         .attr("class", "circle");
-        // .attr("fill", function(d) {
-        //     console.log(d);
-        // });
 
 
 
@@ -104,8 +87,8 @@ function ready(error, world, pageviews, cities) {
               .duration(200)
               .style("opacity", 0.85);
           div.html( function() { 
-              return "<strong>" + d.City + "</strong>" + "<br> <font size='1'>" + 
-                pageviews0[d.City] + " pageviews </font>" +
+              return "<strong>" + d.city + "</strong>" + "<br> <font size='1'>" + 
+                d.pv + " pageviews </font>" +
                 "<br> <font size='1'><font color='grey'> DAY 1 </font></font>"; 
             })
             .style("left", (d3.event.pageX) + "px")

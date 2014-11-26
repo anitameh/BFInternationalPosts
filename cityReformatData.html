@@ -70,8 +70,8 @@
                                 var inner = {};
                                 inner["city"] = d.City;
                                 inner["pv"] = parseInt( d[weeks[i]] );
-                                inner["LAT"] = parseInt( d.Latitude );
-                                inner["LON"] = parseInt( d.Longitude );
+                                inner["LAT"] = parseFloat( d.Latitude );
+                                inner["LON"] = parseFloat( d.Longitude );
                                 pageviews.push(inner);
                             }
                             langDict["pageviews"] = pageviews;
