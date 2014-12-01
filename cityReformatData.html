@@ -28,7 +28,8 @@
         var languages = ["en", "es", "fr", "pt", "de"];
 
         // read in data
-        d3.csv("new-data/all-city-language-data.csv", function(error, data) {
+        // d3.csv("new-data/all-city-language-data.csv", function(error, data) {
+        d3.csv("new-data/SAMPLE.csv", function(error, data) {
 
             var output = [];
             var weeks = []; // depending on the data, this could be a misnomer. Inputted data could also be daily.
@@ -67,8 +68,9 @@
                             var langColName = "Language" + String(weeks[i]);
 
                             if (d[langColName] == languages[j]) {
+
                                 var inner = {};
-                                inner["city"] = d.City;
+                                inner["city"] = d.city;
                                 inner["pv"] = parseInt( d[weeks[i]] );
                                 inner["LAT"] = parseFloat( d.Latitude );
                                 inner["LON"] = parseFloat( d.Longitude );
@@ -85,20 +87,23 @@
                     // for all other rows, just push data to correct place
                     output.forEach(function(dd) {
                         for (var i=0; i<weeks.length; i++) {
+                            console.log( weeks[i] );
                             if (dd.week == keys[i]) {
                                 var langColName = "Language" + String(weeks[i]);
                                 var indexOfLang = languages.indexOf( d[langColName] );
                                 var thisLangDict = dd.info[indexOfLang];
 
                                 // push info
-                                var inner = {};
-                                inner["city"] = d.City;
-                                inner["pv"] = parseInt( d[weeks[i]] );
-                                inner["LAT"] = parseInt( d.Latitude );
-                                inner["LON"] = parseInt( d.Longitude );
-                                thisLangDict.pageviews.push(inner);
+                                console.log("d:");
+                                console.log(d.city, d[ weeks[i] ]);
+                                // var inner = {};
+                                // inner["city"] = d.city;
+                                // inner["pv"] = parseInt( d[weeks[i]] );
+                                // inner["LAT"] = parseFloat( d.Latitude );
+                                // inner["LON"] = parseFloat( d.Longitude );
+                                // console.log(inner);
+                                // thisLangDict.pageviews.push(inner);
                                 
-
                             }
                         }
                     });
@@ -108,7 +113,7 @@
             console.log(output);
 
             // output as json
-            saveToFile(output, "all-city-language-data.js");
+            // saveToFile(output, "SAMPLE.js");
             
 
         });

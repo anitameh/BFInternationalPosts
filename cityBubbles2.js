@@ -71,40 +71,44 @@ function ready(error, world, PV, cities) {
               .attr("class", "country");
 
 
-
-    // console.log(pageviews[0]);
     var currentDate = 0;
     var englishData = (PV[ currentDate ].info)[0].pageviews; // 0 => we are assuming the post was first written in english
 
-    var englishBubbles = svg.selectAll("circle")
+    // console.log(englishData);
+    console.log( "max =" + d3.max( englishData, function(d) { return d.pv; }) );
+
+    var bubbles = svg.selectAll("circle")
         .data( englishData )
         .enter().append("circle")
-        .attr("cx", function(d) { return projection([d.LON, d.LAT])[0]; })
+        .attr("cx", function(d) { 
+            console.log(d);
+            return projection([d.LON, d.LAT])[0]; })
         .attr("cy", function(d) { return projection([d.LON, d.LAT])[1]; })
         .attr("r", function(d) { return sizeScale( d.pv ); })
-        .attr("class", "englishCircle");
+        .attr("class", "circle");
 
 
 
     // hover labels
-    // englishBubbles
-    //     .on("mouseover", function(d) {
-    //       div.transition()
-    //           .duration(200)
-    //           .style("opacity", 0.85);
-    //       div.html( function() { 
-    //           return "<strong>" + d.city + "</strong>" + "<br> <font size='1'>" + 
-    //             d.pv + " pageviews </font>" +
-    //             "<br> <font size='1'><font color='grey'> DAY 1 </font></font>"; 
-    //         })
-    //         .style("left", (d3.event.pageX) + "px")
-    //         .style("top", (d3.event.pageY - 28) + "px");
-    //     })
-    //     .on("mouseout", function(d) {
-    //       div.transition()
-    //           .duration(350)
-    //           .style("opacity", 0);
-    //     });
+    bubbles
+        .on("mouseover", function(d) {
+          div.transition()
+              .duration(200)
+              .style("opacity", 0.85);
+          div.html( function() { 
+              // console.log(d.city + ": " + d.pv);
+              return "<strong>" + d.city + "</strong>" + "<br> <font size='1'>" + 
+                d.pv + " pageviews </font>" +
+                "<br> <font size='1'><font color='grey'> DAY 1 </font></font>"; 
+            })
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on("mouseout", function(d) {
+          div.transition()
+              .duration(350)
+              .style("opacity", 0);
+        });
 
 
 
@@ -132,26 +136,26 @@ function ready(error, world, PV, cities) {
 
 
     // update slider and bubbles (inherited from jQuery UI slider)
-    function update() {
+    // function update() {
 
-        // update slider value
-        var currentDate = myMin;
-        if (currentDate === myMax) {
-          return false;
-        }
+    //     // update slider value
+    //     var currentDate = myMin;
+    //     if (currentDate === myMax) {
+    //       return false;
+    //     }
 
-        slider.property("value", myMin); 
-        englishData = (PV[ currentDate ].info)[0].pageviews;
-        // console.log( englishData[0] );
+    //     slider.property("value", myMin); 
+    //     englishData = (PV[ currentDate ].info)[0].pageviews;
+    //     // console.log( englishData[0] );
         
 
-        // update bubble size and colors
-        d3.selectAll(".circle").transition()
-            .duration(200)
-            .attr("r", function(d,i) { 
-                // console.log(d);
-                return sizeScale( englishData[i].pv ); 
-            });
+    //     // update bubble size and colors
+    //     d3.selectAll(".circle").transition()
+    //         .duration(200)
+    //         .attr("r", function(d,i) { 
+    //             // console.log(d);
+    //             return sizeScale( englishData[i].pv ); 
+    //         });
         
         // english
         // var englishData = (PV[ currentDate ].info)[0].pageviews;
@@ -189,18 +193,18 @@ function ready(error, world, PV, cities) {
 
 
         // increment
-        myMin++;
+    //     myMin++;
 
 
 
-    }
+    // }
 
-    // use this to activate update() (also inherited from jQuery slider)
-    setInterval( function() {
-        if (myMin <= myMax) {
-            update();
-        }
-    }, 400);
+    // // use this to activate update() (also inherited from jQuery slider)
+    // setInterval( function() {
+    //     if (myMin <= myMax) {
+    //         update();
+    //     }
+    // }, 400);
 
     
 }
