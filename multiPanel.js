@@ -261,34 +261,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             console.log("myMin =", myMin);
             update();
         }
-    }, 100);
-    // var counter = 400;
-
-    // var myFunction = function() {
-    //     if (myMin <= myMax) {
-    //         var runtime = computeTime(myMin);
-    //         if ( runtime > 0 ) {
-                
-    //             console.log("counter =", counter);
-    //             console.log("myMin =", myMin);
-
-    //             counter = runtime;
-    //             update();
-    //             interval = setInterval(myFunction, counter);
-    //         }
-    //         else {
-    //             console.log("myMin =", myMin);
-    //             console.log("counter =", counter);
-
-    //             counter = 80;
-    //             update();
-    //             interval = setInterval(myFunction, counter);
-    //         }
-    //     }
-    //     else { return false; }
-        
-    // }
-    // var interval = setInterval(myFunction, counter);    
+    }, 100);   
 
     
 }
@@ -314,8 +287,6 @@ function createLegend() {
 
     var legend = g.append("g")
         .attr("id","legend");
-        // .attr("transform","translate(560,10)");
-
 
     // colors
     legend.append("circle")
@@ -353,7 +324,6 @@ function createLegend() {
         .style("fill", "#BF5FFF")
         .style("fill-opacity", 0.7);
 
-    // legend.append("circle").attr("class","loss").attr("r",5).attr("cx",5).attr("cy",30)
 
     legend.append("text")
         .text("English")
