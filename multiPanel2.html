@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>The International Life of a Translated Post</title>
+    </head>
+    <body>
+
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="http://d3js.org/queue.v1.min.js"></script>
+        <script src="http://d3js.org/topojson.v0.min.js"></script>     
+        <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+        <script src="libs/ModifiedColorbrewer.js"></script>
+        <link rel="stylesheet" href="libs/d3.slider.css" />  <!-- this is a modified version (stylistic changes) -->
+        <script src="libs/d3.slider.js"></script>
+
+
+
+        <style type="text/css">
+
+            /* table & background */
+            td {
+                padding: 1px, 4px;
+                border: 2px solid black;
+            }
+
+            .background {
+                fill: none;
+                pointer-events: all;
+            }
+
+
+            /* map */
+            #map-container{
+              margin: auto;
+            }
+
+            .country {
+                fill: black;
+                fill-opacity: 0.8;
+                stroke: lightgrey;       
+                stroke-width: .8px;
+                stroke-linejoin: round;
+            }
+
+
+            /* bubbles */
+            .circle0 {
+                fill: #67a9cf;
+                fill-opacity: 0.65;
+                stroke-width: 0.75px;
+            }
+
+            .circle1 {
+                fill: #67a9cf;
+                fill-opacity: 0.65;
+                stroke-width: 0.75px;
+            }
+
+            .circle2 {
+                fill: #67a9cf;
+                fill-opacity: 0.65;
+                stroke-width: 0.75px;
+            }
+
+            .circle3 {
+                fill: #67a9cf;
+                fill-opacity: 0.65;
+                stroke-width: 0.75px;
+            }
+
+
+            .circle0:hover {
+                stroke: white;
+                stroke-width: 2;
+            }
+
+            .circle1:hover {
+                stroke: white;
+                stroke-width: 2;
+            }
+
+            .circle2:hover {
+                stroke: white;
+                stroke-width: 2;
+            }
+
+            .circle3:hover {
+                stroke: white;
+                stroke-width: 2;
+            }
+
+            /* slider */
+            #slider {
+                margin-left: 210px;
+            }
+
+
+            /* tooltip */
+            div.tooltip {
+                position: absolute;
+                text-align: center;
+                width: 100px;
+                height: 45px;
+                padding: 2px;
+                font-size: 13px;
+                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+                background: white;
+                border: 1px;
+                box-shadow: 1px 1px 5px grey;
+                border-radius: 8px;
+                pointer-events: none;     
+            }
+
+
+            /* legend */
+            #legend text{
+                font-size: 10px;
+                font-family: sans-serif;
+            }
+
+
+            /* this */
+            #date, #play, #slider-container{
+              display: inline-block;
+              vertical-align: middle;
+              margin-top: 20px;
+            }
+
+            #date{
+              border-left: 5px solid #ccc;
+              padding: 3px 0 3px 10px;
+              margin-left: 60px;
+              color: #333;
+              font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+            }
+            #date p{
+              margin: 0;
+            }
+            #date p:first-child{
+              color: #999;
+              font-size: 11px;
+              line-height: 13px;
+            }
+            #date p#month{
+              font-size: 30px;
+              line-height: 30px;
+            }
+            #date p#month span{
+              float: left;
+              width: 2.55em;
+            }
+
+            #play{
+              width: 53px;
+              height: 53px;
+              background-image: url(play.png);
+              border-radius: 5px;
+              margin-left: 20px;
+              cursor: pointer;
+            }
+
+            #play:hover{
+              background-position: 0 -53px;
+            }
+
+            #play.pause{
+              background-image: url(../images/pause.png);
+            }
+
+            /* slider */
+            #slider-container{
+              position: relative;
+              margin-left: 25px;
+              margin-top: 15px;
+            }
+
+
+            /* axis i.e. slider label */
+            #axis {
+                margin-top: 30px;
+            }
+
+            .axis line,
+            .axis path{
+                fill: none;
+                stroke: lightgrey;
+                shape-rendering: crispEdges;
+            }
+
+            .axis text{
+                font-size: 8px;
+            }
+
+
+        </style>
+
+
+        <!-- set up viz for 2x2-panel layout -->
+        <table>
+            <tr>
+                <td><div id="panel0"></div></td>
+                <td><div id="panel1"></div></td>
+            </tr>
+            <tr>
+                <td><div id="panel2"></div></td>
+                <td><div id="panel3"></div></td>
+            </tr>
+        </table>
+
+        <body>
+            <!-- date -->
+            <div id="date">
+                <p> Total pageviews till: </p>
+                <p id="month">
+                    <span> SEP </span> 2014
+                </p>
+            </div>
+
+            <!-- play button -->
+            <div id="play" title="Play animation"></div>
+            
+            <!-- slider -->
+            <div id="slider-container" style="width:500px">
+                <div id="slider-probe"></div>
+                <div id="slider-div"></div>
+                <!-- <div id="axis" width="400" height="25"></div> -->
+            </div>
+        </body>
+
+
+        <script src="multiPanel2.js"></script>
+
+    </body>
+</html>
