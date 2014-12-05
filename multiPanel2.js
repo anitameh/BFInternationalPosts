@@ -7,7 +7,7 @@ var margin = {
 };
 
 var WIDTH = 1000 - margin.left - margin.right,
-    HEIGHT = 750 - margin.bottom - margin.top;
+    HEIGHT = 710 - margin.bottom - margin.top;
 
 
 
@@ -58,15 +58,15 @@ var path1 = d3.geo.path()
 
 // panel2
 var projection2 = d3.geo.mercator()
-    .center([-10,-42])
-    .scale(250);
+    .center([-10,-45])
+    .scale(230);
 
 var path2 = d3.geo.path()
     .projection(projection2);
 
 // panel3
 var projection3 = d3.geo.mercator()
-    .center([180,-25])
+    .center([180,-27])
     .scale(200);
 
 var path3 = d3.geo.path()
@@ -91,7 +91,7 @@ var GLOBALMIN = 0,
     GLOBALMAX = 12941, // ******* GET THIS FROM DATA *******
     DATES,
     interval,
-    FRAMELENGTH = 500,
+    FRAMELENGTH = 300,
     INCREMENT = 20,
     SLIDERWIDTH = 500,
     isPlaying = false,
@@ -151,19 +151,6 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
               .attr("d", path3)
               .attr("class", "country");
 
-
-    // add probe to map-container
-    probe = d3.select("svg").append("div")
-        .attr("id", "probe");
-
-    // ??
-    // d3.select("body")
-    //     .append("div")
-    //     .attr("id","loader")
-    //     .style("top",d3.select("#play").node().offsetTop + "px");
-        // .style("height",d3.select("#date").node().offsetHeight + d3.select("#map-container").node().offsetHeight + "px");
-
-
     // create bubbles for initial view // ****** MOVE THIS TO UPDATE (DON'T NEED IT HERE) *******
     var headers = d3.keys( PV0[0] );
     var dateLength = (headers.length-2)/2; // always even because each date col has a corresponding language col
@@ -183,6 +170,29 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
         .attr("class", "circle0");
 
+    var bubbles1 = panel1.selectAll("circle")
+        .data( PV1 )
+        .enter().append("circle")
+        .attr("cx", function(d) { return projection1([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
+        .attr("cy", function(d) { return projection1([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .attr("class", "circle1");
+
+    var bubbles2 = panel2.selectAll("circle")
+        .data( PV2 )
+        .enter().append("circle")
+        .attr("cx", function(d) { return projection2([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
+        .attr("cy", function(d) { return projection2([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .attr("class", "circle2");
+
+    var bubbles3 = panel3.selectAll("circle")
+        .data( PV3 )
+        .enter().append("circle")
+        .attr("cx", function(d) { return projection3([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
+        .attr("cy", function(d) { return projection3([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .attr("class", "circle3");
     
     dateScale = createDateScale(DATES)
         .range([0,500]);
@@ -190,56 +200,18 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     createLegend();
 
     createSlider();
+
+    // animate
+    d3.select("#play").on("click", function() {
+        isPlaying = true;
+        animate();
+    });
+
+    d3.select("#pause").on("click", function() {
+        // d3.event.stopPropagation();
+    });
+
 }
-//     var bubbles1 = panel1.selectAll("circle")
-//         .data( PV1 )
-//         .enter().append("circle")
-//         .attr("cx", function(d) { return projection1([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-//         .attr("cy", function(d) { return projection1([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-//         .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//         .attr("class", "circle1");
-
-//     var bubbles2 = panel2.selectAll("circle")
-//         .data( PV2 )
-//         .enter().append("circle")
-//         .attr("cx", function(d) { return projection2([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-//         .attr("cy", function(d) { return projection2([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-//         .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//         .attr("class", "circle2");
-
-//     var bubbles3 = panel3.selectAll("circle")
-//         .data( PV3 )
-//         .enter().append("circle")
-//         .attr("cx", function(d) { return projection3([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-//         .attr("cy", function(d) { return projection3([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-//         .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//         .attr("class", "circle3");
-
-
-
-//     createSlider();
-
-//     // play button
-//     d3.select("#play")
-//       .attr("title","Play animation")
-//       .on("click",function(){
-//         if ( !isPlaying ){
-//           isPlaying = true;
-//           d3.select(this).classed("pause",true).attr("title","Pause animation");
-//           animate();
-//         } else {
-//           isPlaying = false;
-//           d3.select(this).classed("pause",false).attr("title","Play animation");
-//           clearInterval( interval );
-//         }
-//       });    
-
-//     drawDay( currentFrame );
-
-//     // window.onresize = resize;
-//     // resize();
-
-// }
 
 
 // compute radius so that AREA ~ pageviews
@@ -254,101 +226,64 @@ function computeRadius(x) {
 //     // return INTERVAL - x*INCREMENT;
 // }
 
-// function drawDay(m) {
+function drawDay(m, tween) {
 
-//     currentDate = DATES[ m ];
-//     currentLanguage = "Language" + String(currentDate);
+    currentDate = DATES[ m ];
+    currentLanguage = "Language" + String(currentDate);
 
-//     if ( tween ) {
-//         // update bubbles
-//         panel0.selectAll(".circle0")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+    panel0.selectAll(".circle0")
+            .transition()
+            .ease("linear")
+            .duration(FRAMELENGTH)
+            .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+            .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
 
-//         panel1.selectAll(".circle1")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+    panel0.selectAll(".circle0")
+        .transition()
+        .ease("linear")
+        .duration(FRAMELENGTH)
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
 
-//         panel2.selectAll(".circle2")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+    panel1.selectAll(".circle1")
+        .transition()
+        .ease("linear")
+        .duration(FRAMELENGTH)
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
 
-//         panel3.selectAll(".circle3")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+    panel2.selectAll(".circle2")
+        .transition()
+        .ease("linear")
+        .duration(FRAMELENGTH)
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
 
-//     } else {
-//         // still update bubbles
-//         panel0.selectAll(".circle0")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+    panel3.selectAll(".circle3")
+        .transition()
+        .ease("linear")
+        .duration(FRAMELENGTH)
+        .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+        .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+}
 
-//         panel1.selectAll(".circle1")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
 
-//         panel2.selectAll(".circle2")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
+function animate() {
+    interval = setInterval( function() {
 
-//         panel3.selectAll(".circle3")
-//             .transition()
-//             .ease("linear")
-//             .duration(FRAMELENGTH)
-//             .attr("r", function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-//             .style("fill", function(d) { return languageColors( d[currentLanguage] ); });
-//     }
-//     // update date
-//     d3.select("#date p#month").html( dateLabel(m) );
+        currentFrame++;
+        if (currentFrame == DATES.length) currentFrame = 0;
+        
+        slider.value(currentFrame);
+        drawDay( currentFrame, true);
+        
+        if (currentFrame == DATES.length-1) {
+            clearInterval(interval);
+            return;
+        }
 
-//     if (hoverData) {
-//         setProbeContent( hoverData );
-//     }
-// }
-
-// function animate() {
-//     interval = setInterval( function() {
-
-//         currentFrame++; // increment
-//         if (currentFrame == DATES.length) currentFrame = 0; // stop at last date
-
-//         d3.select("#slider-div .d3-slider-handle")
-//             .style("left", 100*currentFrame/DATES.length + "%");
-
-//         // update slider and drawing
-//         slider.value(currentFrame);
-//         drawDay( currentFrame, true );
-
-//         if (currentFrame == DATES.length-1) {
-//             isPlaying = false;
-//             d3.select("#play").classed("pause", false).attr("title", "Play animation");
-//             clearInterval( interval );
-//             return;
-//         }
-
-//     }, FRAMELENGTH);
-// }
+    }, FRAMELENGTH);
+}
 
 function createSlider() {
 
@@ -356,57 +291,33 @@ function createSlider() {
         .domain([0, DATES.length-1]);
 
     var val = slider ? slider.value() : 0;
+ 
 
-    // ORIGINAL CODE
-    // slider = d3.slider()
-    //     .scale( sliderScale )
-    //     .on("slide", function(event, value) {
-    //         if (isPlaying) {
-    //             clearInterval( interval );
-    //         }
-    //         currentFrame = value;
-    //         drawDay( currentFrame, d3.event.type != "drag" );
-    //     })
-    //     .on("slideend", function() {
-    //         if ( isPlaying ) animate();
-    //         d3.select("#slider-div").on("mousemove", sliderProbe);
-    //     })
-    //     .on("slidestart", function() {
-    //         d3.select("#slider-div").on("mousemove", null);
-    //     })
-    //     .value(val);
-
-    d3.select('#slider-container').call( d3.slider() );
-
-    // d3.select("#slider-div").remove();
-
-    // d3.select("#slider-container")
-    //     .append("div")
-    //     .attr("id", "slider-div")
-    //     .style("width", dateScale.range()[1] + "px")
-    //     .on("mousemove", sliderProbe)
-    //     .on("mouseout", function() {
-    //         d3.select("#slider-probe").style("display", "none");
-    //     })
-    //     .call(slider);
+    slider = d3.slider()
+                .scale( sliderScale )
+                .on("slide", function(event, value) {
+                    if ( isPlaying ) {
+                        clearInterval(interval);
+                    }
+                    currentFrame = Math.round(value);
+                    // update to this particular date
+                    console.log( "currentFrame =", currentFrame );
+                    drawDay( currentFrame, d3.event.type != "drag" );
+                })
+                .value(val);
 
 
-
-    // d3.select("#slider-div a").on("mousemove", function() {
-    //     d3.event.stopPropagation();
-    // });
+    d3.select("#slider-container")
+        .call( slider );
 
     // draw labels onto slider
     var sliderAxis = d3.svg.axis()
         .scale( dateScale )
         .orient("bottom")
         .tickFormat(function(d) {
-            console.log( (d.getMonth()+1) + "/" + d.getDate() );
-            return (d.getMonth()+1) + "/" + d.getDate();
+            return (d.getMonth()+1) + "/" + d.getDate(); // the +1 accounts for UTC time
         });
 
-//     // remove old axis on each iteration
-//     d3.select("#axis").remove();
 
     d3.select("#slider-container")
         .append("svg")
@@ -419,22 +330,6 @@ function createSlider() {
 
 }
 
-// function setProbeContent(d) {
-//     // hover tip
-//     var html = "<strong>" + d.City + "</strong><br> <font size='1'>" + 
-//                 d[currentDate] + " pageviews </font>" +
-//                 "<br> <font size='1'><font color='grey'> DAY 1 </font></font>";
-// }
-
-// function sliderProbe() {
-//     var d = dateScale.invert( (d3.mouse(this)[0]) );
-
-//     d3.select("#slider-probe")
-//         .style("left", d3.mouse(this)[0] + sliderMargin + "px")
-//         .style("display", "block")
-//         .select("p")
-//         .html( "heyyy" );
-// }
 
 function createDateScale( DATES ) {
     var start = DATES[0],
@@ -469,35 +364,35 @@ function createLegend() {
     legend.append("circle")
         .attr("r",5)
         .attr("cx",10)
-        .attr("cy", 150)
+        .attr("cy", 130)
         .style("fill", "#67a9cf")
         .style("fill-opacity", 0.7);
     
     legend.append("circle")
         .attr("r",5)
         .attr("cx",10)
-        .attr("cy",165)
+        .attr("cy",145)
         .style("fill", "#7FFF00")
         .style("fill-opacity", 0.7);
 
     legend.append("circle")
         .attr("r",5)
         .attr("cx",10)
-        .attr("cy",180)
+        .attr("cy",160)
         .style("fill", "yellow")
         .style("fill-opacity", 0.7);
     
     legend.append("circle")
         .attr("r",5)
         .attr("cx",10)
-        .attr("cy",195)
+        .attr("cy",175)
         .style("fill", "#FF1493")
         .style("fill-opacity", 0.7);
 
     legend.append("circle")
         .attr("r",5)
         .attr("cx",10)
-        .attr("cy",210)
+        .attr("cy",190)
         .style("fill", "#BF5FFF")
         .style("fill-opacity", 0.7);
 
@@ -505,27 +400,27 @@ function createLegend() {
     legend.append("text")
         .text("English")
         .attr("x",25)
-        .attr("y",153);
+        .attr("y",133);
 
     legend.append("text")
         .text("Espanol")
         .attr("x",25)
-        .attr("y",168);
+        .attr("y",148);
 
     legend.append("text")
         .text("French")
         .attr("x",25)
-        .attr("y",183);
+        .attr("y",163);
 
     legend.append("text")
         .text("Portuguese")
         .attr("x",25)
-        .attr("y",198);
+        .attr("y",178);
 
     legend.append("text")
         .text("Deutsche")
         .attr("x",25)
-        .attr("y",213);
+        .attr("y",193);
 
     // sizes
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
@@ -535,7 +430,7 @@ function createLegend() {
         legend.append("circle")
             .attr("r", parseInt( computeRadius(sizeScale( sizes[i] )) ))
             .attr("cx", 5 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
-            .attr("cy", 20 + 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
+            .attr("cy", -5+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
             .attr("vector-effect","non-scaling-stroke")
             .style("fill", "none")
             .style("stroke", "darkgrey");
@@ -543,13 +438,13 @@ function createLegend() {
         legend.append("text")
             .text("Pageviews")
             .attr("x", 17)
-            .attr("y", 238);
+            .attr("y", 215);
 
         legend.append("text")
             .text( parseInt(sizes[i]) )
             .attr("text-anchor", "middle" )
             .attr("x", 5 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
-            .attr("y", 20 + 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5);
+            .attr("y", -5+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5);
     }
 }
 

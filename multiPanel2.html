@@ -13,6 +13,8 @@
         <script src="libs/ModifiedColorbrewer.js"></script>
         <link rel="stylesheet" href="libs/d3.slider.css" />  <!-- this is a modified version (stylistic changes) -->
         <script src="libs/d3.slider.js"></script>
+        <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+    
 
 
 
@@ -90,11 +92,6 @@
                 stroke-width: 2;
             }
 
-            /* slider */
-            #slider {
-                margin-left: 210px;
-            }
-
 
             /* tooltip */
             div.tooltip {
@@ -121,7 +118,7 @@
 
 
             /* this */
-            #date, #play, #slider-container{
+            #date, #slider-container{
               display: inline-block;
               vertical-align: middle;
               margin-top: 20px;
@@ -151,28 +148,30 @@
               width: 2.55em;
             }
 
-            #play{
-              width: 53px;
-              height: 53px;
-              background-image: url(play.png);
-              border-radius: 5px;
-              margin-left: 20px;
-              cursor: pointer;
+            /* play button */
+            button {
+                position: absolute;
+                height: 25px;
+                width: 53px;
             }
 
-            #play:hover{
-              background-position: 0 -53px;
+            button#play{
+                margin-top: 20px;
+                margin-left: 20px;
+                cursor: pointer;
             }
 
-            #play.pause{
-              background-image: url(../images/pause.png);
+            button#pause {
+                margin-top: 45px;
+                margin-left: 20px;
+                cursor: pointer;
             }
 
             /* slider */
             #slider-container{
-              position: relative;
-              margin-left: 25px;
-              margin-top: 15px;
+              position: absolute;
+              margin-left: 100px;
+              margin-top: 35px;
             }
 
 
@@ -217,14 +216,12 @@
                 </p>
             </div>
 
-            <!-- play button -->
-            <div id="play" title="Play animation"></div>
+            <!-- play/pause buttons -->
+            <button id="play"   title="Play animation"  ><i class='fa fa-play'></i></button>
+            <button id="pause"  title="Pause animation" ><i class='fa fa-pause'></i></button>
             
             <!-- slider -->
             <div id="slider-container" style="width:500px">
-                <div id="slider-probe"></div>
-                <div id="slider-div"></div>
-                <!-- <div id="axis" width="400" height="25"></div> -->
             </div>
         </body>
 
