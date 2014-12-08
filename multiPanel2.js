@@ -1,89 +1,93 @@
 // initialize layout params
-var margin = {
-    top: 50,
-    right: 50,
-    bottom: 50,
-    left: 50
-};
 
-var WIDTH = 1000 - margin.left - margin.right,
-    HEIGHT = 710 - margin.bottom - margin.top;
+function init() {
+
+    var margin = {
+        top: 50,
+        right: 50,
+        bottom: 50,
+        left: 50
+    };
+
+    var WIDTH = 1000 - margin.left - margin.right,
+        HEIGHT = 710 - margin.bottom - margin.top;
 
 
 
-// create svg elements for each panel
-var panels = [];
-for (var i=0; i<4; i++) {
-    var selector = '#panel' + i;
-    var panel = d3.select(selector).append('svg').attr({
-        width: (WIDTH - 40)/2,
-        height: (HEIGHT - 10)/2
+    // create svg elements for each panel
+    panels = [];
+    for (var i=0; i<4; i++) {
+        var selector = '#panel' + i;
+        var panel = d3.select(selector).append('svg').attr({
+            width: (WIDTH - 40)/2,
+            height: (HEIGHT - 10)/2
+        });
+
+        panels.push( panel );
+    }
+
+
+    // projections for map
+    // KEY:  panel0 = (0,0) = North + Central America
+    //       panel1 = (0,1) = Western Europe
+    //       panel2 = (1,0) = South America
+    //       panel3 = (1,1) = Australasia
+
+
+    // ******* HANDLE HAWAII, ALASKA *******
+    // generate projections for each panel
+    var centerX = [-50, 45, -10, 180];
+    var centerY = [19, 40, -45, -27];
+    var zoom = [350, 450, 230, 200];
+
+    projections = [];
+    for (var i=0; i<4; i++) {
+        var projection = d3.geo.mercator()
+            .center([ centerX[i], centerY[i] ])
+            .scale( zoom[i] );
+
+        projections.push( projection );
+    }
+
+    // draw paths
+    paths = [];
+    for (var i=0; i<4; i++) {
+        var path = d3.geo.path()
+            .projection( projections[i] );
+
+        paths.push( path );
+    }
+
+
+    // create main svg
+    var canvas = d3.select('#vis').append('svg').attr({
+        width: WIDTH + margin.left + margin.right,
+        height: HEIGHT + margin.top + margin.bottom
     });
 
-    panels.push( panel );
+    var svg = canvas.append('g').attr({
+        transform: 'translate(' + margin.left + ',' + margin.top + ')'
+    });
+
 }
 
-
-// projections for map
-// KEY:  panel0 = (0,0) = North + Central America
-//       panel1 = (0,1) = Western Europe
-//       panel2 = (1,0) = South America
-//       panel3 = (1,1) = Australasia
-
-
-// ******* HANDLE HAWAII, ALASKA *******
-// generate projections for each panel
-var centerX = [-50, 45, -10, 180];
-var centerY = [19, 40, -45, -27];
-var zoom = [350, 450, 230, 200];
-
-var projections = [];
-for (var i=0; i<4; i++) {
-    var projection = d3.geo.mercator()
-        .center([ centerX[i], centerY[i] ])
-        .scale( zoom[i] );
-
-    projections.push( projection );
-}
-
-// draw paths
-var paths = [];
-for (var i=0; i<4; i++) {
-    var path = d3.geo.path()
-        .projection( projections[i] );
-
-    paths.push( path );
-}
-
-
-// create main svg
-var canvas = d3.select('#vis').append('svg').attr({
-    width: WIDTH + margin.left + margin.right,
-    height: HEIGHT + margin.top + margin.bottom
-});
-
-var svg = canvas.append('g').attr({
-    transform: 'translate(' + margin.left + ',' + margin.top + ')'
-});
-
-var probe, 
-    hoverData;
 
 // initialize global vars
+var panels, projections, paths;
+
 var GLOBALMIN = 0,
     GLOBALMAX = 12941, // ******* GET THIS FROM DATA *******
     DATES,
-    interval,
     FRAMELENGTH = 1000,
     INCREMENT = 20,
     SLIDERWIDTH = 500,
     isPlaying = false,
-    currentFrame = 0;
-
-var dateScale,
+    currentFrame = 0,
+    dateScale,
     sliderScale,
     slider,
     sliderMargin = 65;
+
 
 // scales
 var languageColors = d3.scale.ordinal()
@@ -94,6 +98,9 @@ var sizeScale = d3.scale.linear()
     .domain([GLOBALMIN, GLOBALMAX])
     .range([0, 4000]);
 
+var monthLabels = d3.scale.ordinal()
+      .domain([1,2,3,4,5,6,7,8,9,10,11,12])
+      .range(['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']);
 
 
 // load data
@@ -109,6 +116,9 @@ queue()
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
 
+    // draw panels
+    init();
+
     // draw parts of world map in each panel
     for (var i=0; i<4; i++) {
         panels[i].selectAll('path')
@@ -118,7 +128,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                   .attr('class', 'country');
     }
 
-    // create bubbles for initial view // ****** MOVE THIS TO UPDATE (DON'T NEED IT HERE) *******
+    // create bubbles for initial view
     var headers = d3.keys( PV0[0] );
     var dateLength = (headers.length-2)/2; // always even because each date col has a corresponding language col
     DATES = headers.slice(0, dateLength-1); // get dates for this post
@@ -182,11 +192,6 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 }
 
 
-// compute radius so that AREA ~ pageviews
-function computeRadius(x) {
-    return Math.sqrt( x/3.14 );
-}
-
 function drawDay(m, tween) {
     currentDate = DATES[ m ];
     currentLanguage = 'Language' + currentDate;
@@ -201,13 +206,14 @@ function drawDay(m, tween) {
             .style('fill', function(d) { return languageColors( d[currentLanguage] ); });
 
     }
+
+    dateLabel(m);
 }
 
 
 
 function drawFrame() {
     currentFrame++;
-
     currentFrame = currentFrame % DATES.length; // continue looping until pause pressed
 
     slider.value(currentFrame);
@@ -240,7 +246,6 @@ function createSlider() {
                     }
                     currentFrame = Math.round(value);
                     // update to this particular date
-                    console.log( 'currentFrame =', currentFrame );
                     drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
                 })
                 .value(val);
@@ -285,11 +290,17 @@ function createDateScale( DATES ) {
 
 }
 
-// function dateLabel(m) {
-//     // date label
-//     var theDate = DATES[m];
-//     return '<span>' + theDate + '</span>';
-// }
+function dateLabel(m) {
+
+    // date label
+    var month = monthLabels( parseInt(DATES[m].slice(4,6)) ),
+        day = DATES[m].slice(6,8)
+        year = DATES[m].slice(0,4);
+
+    d3.select('#date p#month').text( month + ' ' + day + ' ' + year );
+
+}
+
 
 // make legend
 function createLegend() {
@@ -299,67 +310,23 @@ function createLegend() {
     var legend = g.append('g')
         .attr('id','legend');
 
-    // colors
-    legend.append('circle')
-        .attr('r',5)
-        .attr('cx',10)
-        .attr('cy', 130)
-        .style('fill', '#67a9cf')
-        .style('fill-opacity', 0.7);
-    
-    legend.append('circle')
-        .attr('r',5)
-        .attr('cx',10)
-        .attr('cy',145)
-        .style('fill', '#7FFF00')
-        .style('fill-opacity', 0.7);
+    var languages = ['English', 'Espanol', 'French', 'Portuguese', 'Deutsche'];
 
-    legend.append('circle')
-        .attr('r',5)
-        .attr('cx',10)
-        .attr('cy',160)
-        .style('fill', 'yellow')
-        .style('fill-opacity', 0.7);
-    
-    legend.append('circle')
-        .attr('r',5)
-        .attr('cx',10)
-        .attr('cy',175)
-        .style('fill', '#FF1493')
-        .style('fill-opacity', 0.7);
+    for (var j=0; j<5; j++) {
+        // colored circles
+        legend.append('circle')
+            .attr('r', 5)
+            .attr('cx', 10)
+            .attr('cy', 130 + j*15)
+            .style('fill', languageColors.range()[j])
+            .style('fill-opacity', 0.7);
 
-    legend.append('circle')
-        .attr('r',5)
-        .attr('cx',10)
-        .attr('cy',190)
-        .style('fill', '#BF5FFF')
-        .style('fill-opacity', 0.7);
-
-
-    legend.append('text')
-        .text('English')
-        .attr('x',25)
-        .attr('y',133);
-
-    legend.append('text')
-        .text('Espanol')
-        .attr('x',25)
-        .attr('y',148);
-
-    legend.append('text')
-        .text('French')
-        .attr('x',25)
-        .attr('y',163);
-
-    legend.append('text')
-        .text('Portuguese')
-        .attr('x',25)
-        .attr('y',178);
-
-    legend.append('text')
-        .text('Deutsche')
-        .attr('x',25)
-        .attr('y',193);
+        // legend text
+        legend.append('text')
+            .text(languages[j])
+            .attr('x', 25)
+            .attr('y', 133 + j*15);
+    }
 
     // sizes
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
@@ -387,6 +354,12 @@ function createLegend() {
     }
 }
 
+// round up legend labels
 function roundUp(x) {
     return 100*Math.ceil(x/100);
+}
+
+// compute radius so that AREA ~ pageviews
+function computeRadius(x) {
+    return Math.sqrt( x/3.14 );
 }
