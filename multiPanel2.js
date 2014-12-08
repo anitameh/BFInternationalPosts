@@ -1,4 +1,17 @@
-// initialize layout params
+/*
+ * @author: Anita Mehrotra
+ * @date: December 8, 2014
+ * @project: BF International Viz
+*/
+
+// ******* HANDLE HAWAII, ALASKA **************
+// KEY:  panel0 = (0,0) = North + Central America
+//       panel1 = (0,1) = Western Europe
+//       panel2 = (1,0) = South America
+//       panel3 = (1,1) = Australasia
+// ********************************************
+
+
 
 function init() {
 
@@ -10,9 +23,10 @@ function init() {
     };
 
     var WIDTH = 1000 - margin.left - margin.right,
-        HEIGHT = 710 - margin.bottom - margin.top;
-
-
+        HEIGHT = 710 - margin.bottom - margin.top,
+        centerX = [-50, 45, -10, 180],
+        centerY = [19, 40, -45, -27],
+        zoom = [350, 450, 230, 200];
 
     // create svg elements for each panel
     panels = [];
@@ -26,20 +40,7 @@ function init() {
         panels.push( panel );
     }
 
-
-    // projections for map
-    // KEY:  panel0 = (0,0) = North + Central America
-    //       panel1 = (0,1) = Western Europe
-    //       panel2 = (1,0) = South America
-    //       panel3 = (1,1) = Australasia
-
-
-    // ******* HANDLE HAWAII, ALASKA *******
     // generate projections for each panel
-    var centerX = [-50, 45, -10, 180];
-    var centerY = [19, 40, -45, -27];
-    var zoom = [350, 450, 230, 200];
-
     projections = [];
     for (var i=0; i<4; i++) {
         var projection = d3.geo.mercator()
@@ -58,7 +59,6 @@ function init() {
         paths.push( path );
     }
 
-
     // create main svg
     var canvas = d3.select('#vis').append('svg').attr({
         width: WIDTH + margin.left + margin.right,
@@ -67,14 +67,14 @@ function init() {
 
     var svg = canvas.append('g').attr({
         transform: 'translate(' + margin.left + ',' + margin.top + ')'
+    })
+    .on('mouseover', function() {
+        if (probe) probe.style('display', 'none');
     });
-
 }
 
 
 // initialize global vars
-var panels, projections, paths;
-
 var GLOBALMIN = 0,
     GLOBALMAX = 12941, // ******* GET THIS FROM DATA *******
     DATES,
@@ -86,7 +86,12 @@ var GLOBALMIN = 0,
     dateScale,
     sliderScale,
     slider,
-    sliderMargin = 65;
+    sliderMargin = 65,
+    probe,
+    hoverData,
+    panels, 
+    projections, 
+    paths;
 
 
 // scales
@@ -171,6 +176,88 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         .attr('cy', function(d) { return projections[3]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
         .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
         .attr('class', 'circle3');
+
+
+    // hover tooltips
+    var div = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0);
+
+    bubbles0
+        .on('mousemove', function(d) {
+            div.transition()
+                .duration(200)
+                .style('opacity', 0.85);
+            div.html( function() {
+                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                    d[currentDate] + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
+            })
+            .style('left', d3.event.pageX + 'px')
+            .style('top', (d3.event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            div.transition()
+                .duration(350)
+                .style('opacity', 0);
+        });
+
+    bubbles1
+        .on('mousemove', function(d) {
+            div.transition()
+                .duration(200)
+                .style('opacity', 0.85);
+            div.html( function() {
+                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                    d[currentDate] + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
+            })
+            .style('left', d3.event.pageX + 'px')
+            .style('top', (d3.event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            div.transition()
+                .duration(350)
+                .style('opacity', 0);
+        });
+
+    bubbles2
+        .on('mousemove', function(d) {
+            div.transition()
+                .duration(200)
+                .style('opacity', 0.85);
+            div.html( function() {
+                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                    d[currentDate] + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
+            })
+            .style('left', d3.event.pageX + 'px')
+            .style('top', (d3.event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            div.transition()
+                .duration(350)
+                .style('opacity', 0);
+        });
+
+    bubbles3
+        .on('mousemove', function(d) {
+            div.transition()
+                .duration(200)
+                .style('opacity', 0.85);
+            div.html( function() {
+                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                    d[currentDate] + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
+            })
+            .style('left', d3.event.pageX + 'px')
+            .style('top', (d3.event.pageY - 28) + 'px');
+        })
+        .on('mouseout', function(d) {
+            div.transition()
+                .duration(350)
+                .style('opacity', 0);
+        });
     
     dateScale = createDateScale(DATES)
         .range([0,500]);
@@ -189,91 +276,165 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         isPlaying = false;
     });
 
-}
+    function drawDay(m, tween) {
+        currentDate = DATES[ m ];
+        currentLanguage = 'Language' + currentDate;
 
+        for (var i=0; i<4; i++) {
+            var whichCircle = '.circle' + i;
+            panels[i].selectAll(whichCircle)
+                .transition()
+                .ease('linear')
+                .duration(FRAMELENGTH)
+                .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+                .style('fill', function(d) { return languageColors( d[currentLanguage] ); });
 
-function drawDay(m, tween) {
-    currentDate = DATES[ m ];
-    currentLanguage = 'Language' + currentDate;
+        }
 
-    for (var i=0; i<4; i++) {
-        var whichCircle = '.circle' + i;
-        panels[i].selectAll(whichCircle)
-            .transition()
-            .ease('linear')
-            .duration(FRAMELENGTH)
-            .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-            .style('fill', function(d) { return languageColors( d[currentLanguage] ); });
-
-    }
-
-    dateLabel(m);
-}
-
-
-
-function drawFrame() {
-    currentFrame++;
-    currentFrame = currentFrame % DATES.length; // continue looping until pause pressed
-
-    slider.value(currentFrame);
-    drawDay( currentFrame, true );
-
-    if (isPlaying) {
-        requestAnimationFrame(drawFrame);
-    }
-}
-
-
-function animate() {
-    requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
-}
-
-
-function createSlider() {
-
-    sliderScale = d3.scale.linear()
-        .domain([0, DATES.length-1]);
-
-    var val = slider ? slider.value() : 0;
- 
-
-    slider = d3.slider()
-                .scale( sliderScale )
-                .on('slide', function(event, value) {
-                    if ( isPlaying ) {
-                        clearInterval(interval);
-                    }
-                    currentFrame = Math.round(value);
-                    // update to this particular date
-                    drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
+        bubbles0
+            .on('mousemove', function(d) {
+                div.transition()
+                    .duration(200)
+                    .style('opacity', 0.85);
+                div.html( function() {
+                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                        d[currentDate] + ' pageviews </font>' +
+                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
                 })
-                .value(val);
+                .style('left', d3.event.pageX + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function(d) {
+                div.transition()
+                    .duration(350)
+                    .style('opacity', 0);
+            });
+
+        bubbles1
+            .on('mousemove', function(d) {
+                div.transition()
+                    .duration(200)
+                    .style('opacity', 0.85);
+                div.html( function() {
+                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                        d[currentDate] + ' pageviews </font>' +
+                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+                })
+                .style('left', d3.event.pageX + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function(d) {
+                div.transition()
+                    .duration(350)
+                    .style('opacity', 0);
+            });
+
+        bubbles2
+            .on('mousemove', function(d) {
+                div.transition()
+                    .duration(200)
+                    .style('opacity', 0.85);
+                div.html( function() {
+                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                        d[currentDate] + ' pageviews </font>' +
+                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+                })
+                .style('left', d3.event.pageX + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function(d) {
+                div.transition()
+                    .duration(350)
+                    .style('opacity', 0);
+            });
+
+        bubbles3
+            .on('mousemove', function(d) {
+                div.transition()
+                    .duration(200)
+                    .style('opacity', 0.85);
+                div.html( function() {
+                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+                        d[currentDate] + ' pageviews </font>' +
+                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+                })
+                .style('left', d3.event.pageX + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on('mouseout', function(d) {
+                div.transition()
+                    .duration(350)
+                    .style('opacity', 0);
+            });
+
+        dateLabel(m);
+    }
 
 
-    d3.select('#slider-container')
-        .call( slider );
+    function drawFrame() {
+        currentFrame++;
+        currentFrame = currentFrame % DATES.length; // continue looping until pause pressed
 
-    // draw labels onto slider
-    var sliderAxis = d3.svg.axis()
-        .scale( dateScale )
-        .orient('bottom')
-        .tickFormat(function(d) {
-            return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
-        });
+        slider.value(currentFrame);
+        drawDay( currentFrame, true );
+
+        if (isPlaying) {
+            requestAnimationFrame(drawFrame);
+        }
+    }
 
 
-    d3.select('#slider-container')
-        .append('svg')
-        .attr('width', dateScale.range()[1])
-        .attr('height', 50)
-        .append('g')
-            .attr('transform', 'translate(0,15)')
-            .attr('class', 'axis')
-            .call( sliderAxis );
+    function animate() {
+        requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
+    }
+
+
+    function createSlider() {
+
+        sliderScale = d3.scale.linear()
+            .domain([0, DATES.length-1]);
+
+        var val = slider ? slider.value() : 0;
+
+        slider = d3.slider()
+                    .scale( sliderScale )
+                    .on('slide', function(event, value) {
+                        if ( isPlaying ) {
+                            clearInterval(interval);
+                        }
+                        currentFrame = Math.round(value);
+                        // update to this particular date
+                        drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
+                    })
+                    .value(val);
+
+        d3.select('#slider-container')
+            .call( slider );
+
+        // draw labels onto slider
+        var sliderAxis = d3.svg.axis()
+            .scale( dateScale )
+            .orient('bottom')
+            .tickFormat(function(d) {
+                return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
+            });
+
+        d3.select('#slider-container')
+            .append('svg')
+            .attr('width', dateScale.range()[1])
+            .attr('height', 50)
+            .append('g')
+                .attr('transform', 'translate(0,15)')
+                .attr('class', 'axis')
+                .call( sliderAxis );
+    }
 
 }
 
+
+
+
+// OTHER FUNCTIONS
 
 function createDateScale( DATES ) {
     var start = DATES[0],
@@ -297,7 +458,8 @@ function dateLabel(m) {
         day = DATES[m].slice(6,8)
         year = DATES[m].slice(0,4);
 
-    d3.select('#date p#month').text( month + ' ' + day + ' ' + year );
+    d3.select('#date p#month')
+        .text( month + ' ' + day + ' ' + year );
 
 }
 
@@ -312,15 +474,15 @@ function createLegend() {
 
     var languages = ['English', 'Espanol', 'French', 'Portuguese', 'Deutsche'];
 
+    // LEGEND 1
     for (var j=0; j<5; j++) {
-        // colored circles
+        // color circles
         legend.append('circle')
             .attr('r', 5)
             .attr('cx', 10)
             .attr('cy', 130 + j*15)
             .style('fill', languageColors.range()[j])
             .style('fill-opacity', 0.7);
-
         // legend text
         legend.append('text')
             .text(languages[j])
@@ -328,11 +490,10 @@ function createLegend() {
             .attr('y', 133 + j*15);
     }
 
-    // sizes
+    // LEGEND 2
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
-
     for ( var i in sizes ) {
-
+        // size circles
         legend.append('circle')
             .attr('r', parseInt( computeRadius(sizeScale( sizes[i] )) ))
             .attr('cx', 5 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
@@ -340,12 +501,11 @@ function createLegend() {
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
             .style('stroke', 'darkgrey');
-
+        // legend text
         legend.append('text')
             .text('Pageviews')
             .attr('x', 17)
             .attr('y', 215);
-
         legend.append('text')
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
