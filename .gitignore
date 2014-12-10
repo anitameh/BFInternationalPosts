@@ -3,3 +3,4 @@
 .ipynb_checkpoints/*
 data/*
 new-data/*
+.DS_Store

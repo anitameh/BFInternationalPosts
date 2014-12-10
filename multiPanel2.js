@@ -75,7 +75,7 @@ function init() {
 var GLOBALMIN = 0,
     GLOBALMAX = 12941, // ******* GET THIS FROM DATA *******
     DATES,
-    FRAMELENGTH = 1000,
+    FRAMELENGTH = 600,
     INCREMENT = 20,
     SLIDERWIDTH = 500,
     isPlaying = false,
@@ -288,81 +288,81 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
         }
 
-        bubbles0
-            .on('mousemove', function(d) {
-                div.transition()
-                    .duration(200)
-                    .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                        d[currentDate] + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
-            })
-            .on('mouseout', function(d) {
-                div.transition()
-                    .duration(350)
-                    .style('opacity', 0);
-            });
+        // bubbles0
+        //     .on('mousemove', function(d) {
+        //         div.transition()
+        //             .duration(200)
+        //             .style('opacity', 0.85);
+        //         div.html( function() {
+        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+        //                 d[currentDate] + ' pageviews </font>' +
+        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+        //         })
+        //         .style('left', d3.event.pageX + 'px')
+        //         .style('top', (d3.event.pageY - 28) + 'px');
+        //     })
+        //     .on('mouseout', function(d) {
+        //         div.transition()
+        //             .duration(350)
+        //             .style('opacity', 0);
+        //     });
 
-        bubbles1
-            .on('mousemove', function(d) {
-                div.transition()
-                    .duration(200)
-                    .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                        d[currentDate] + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
-            })
-            .on('mouseout', function(d) {
-                div.transition()
-                    .duration(350)
-                    .style('opacity', 0);
-            });
+        // bubbles1
+        //     .on('mousemove', function(d) {
+        //         div.transition()
+        //             .duration(200)
+        //             .style('opacity', 0.85);
+        //         div.html( function() {
+        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+        //                 d[currentDate] + ' pageviews </font>' +
+        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+        //         })
+        //         .style('left', d3.event.pageX + 'px')
+        //         .style('top', (d3.event.pageY - 28) + 'px');
+        //     })
+        //     .on('mouseout', function(d) {
+        //         div.transition()
+        //             .duration(350)
+        //             .style('opacity', 0);
+        //     });
 
-        bubbles2
-            .on('mousemove', function(d) {
-                div.transition()
-                    .duration(200)
-                    .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                        d[currentDate] + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
-            })
-            .on('mouseout', function(d) {
-                div.transition()
-                    .duration(350)
-                    .style('opacity', 0);
-            });
+        // bubbles2
+        //     .on('mousemove', function(d) {
+        //         div.transition()
+        //             .duration(200)
+        //             .style('opacity', 0.85);
+        //         div.html( function() {
+        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+        //                 d[currentDate] + ' pageviews </font>' +
+        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+        //         })
+        //         .style('left', d3.event.pageX + 'px')
+        //         .style('top', (d3.event.pageY - 28) + 'px');
+        //     })
+        //     .on('mouseout', function(d) {
+        //         div.transition()
+        //             .duration(350)
+        //             .style('opacity', 0);
+        //     });
 
-        bubbles3
-            .on('mousemove', function(d) {
-                div.transition()
-                    .duration(200)
-                    .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                        d[currentDate] + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
-            })
-            .on('mouseout', function(d) {
-                div.transition()
-                    .duration(350)
-                    .style('opacity', 0);
-            });
+        // bubbles3
+        //     .on('mousemove', function(d) {
+        //         div.transition()
+        //             .duration(200)
+        //             .style('opacity', 0.85);
+        //         div.html( function() {
+        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
+        //                 d[currentDate] + ' pageviews </font>' +
+        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
+        //         })
+        //         .style('left', d3.event.pageX + 'px')
+        //         .style('top', (d3.event.pageY - 28) + 'px');
+        //     })
+        //     .on('mouseout', function(d) {
+        //         div.transition()
+        //             .duration(350)
+        //             .style('opacity', 0);
+        //     });
 
         dateLabel(m);
     }
@@ -376,13 +376,15 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         drawDay( currentFrame, true );
 
         if (isPlaying) {
-            requestAnimationFrame(drawFrame);
+            // requestAnimationFrame(drawFrame);
+            setTimeout(drawFrame, FRAMELENGTH);
         }
     }
 
 
     function animate() {
-        requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
+        // requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
+        drawFrame();
     }
 
 
@@ -396,9 +398,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         slider = d3.slider()
                     .scale( sliderScale )
                     .on('slide', function(event, value) {
-                        if ( isPlaying ) {
-                            clearInterval(interval);
-                        }
+                        isPlaying = false;
                         currentFrame = Math.round(value);
                         // update to this particular date
                         drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
