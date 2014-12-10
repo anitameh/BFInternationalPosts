@@ -67,9 +67,6 @@ function init() {
 
     var svg = canvas.append('g').attr({
         transform: 'translate(' + margin.left + ',' + margin.top + ')'
-    })
-    .on('mouseover', function() {
-        if (probe) probe.style('display', 'none');
     });
 }
 
