@@ -25,7 +25,7 @@ function init() {
     var WIDTH = 1000 - margin.left - margin.right,
         HEIGHT = 710 - margin.bottom - margin.top,
         centerX = [-50, 45, -10, 180],
-        centerY = [19, 40, -45, -27],
+        centerY = [19, 40, -45, -33],
         zoom = [350, 450, 230, 200];
 
     // create svg elements for each panel
@@ -118,6 +118,8 @@ queue()
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
 
+    var PVs = [PV0, PV1, PV2, PV3];
+
     // draw panels
     init();
 
@@ -129,6 +131,11 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                   .attr('d', paths[i])
                   .attr('class', 'country');
     }
+
+    // tooltip prep
+    var div = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('opacity', 0);
 
     // create bubbles for initial view
     var headers = d3.keys( PV0[0] );
@@ -142,119 +149,34 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     var currentLanguage = 'Language' + currentDate;
 
     // draw them
-    var bubbles0 = panels[0].selectAll('circle')
-        .data( PV0 )
-        .enter().append('circle')
-        .attr('cx', function(d) { return projections[0]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-        .attr('cy', function(d) { return projections[0]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-        .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-        .attr('class', 'circle0');
+    for (var i=0; i<4; i++) {
+        var bubbles = panels[i].selectAll('circle')
+            .data( PVs[i] )
+            .enter().append('circle')
+            .attr('cx', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
+            .attr('cy', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
+            .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
+            .attr('class', 'circle'+i);
 
-    var bubbles1 = panels[1].selectAll('circle')
-        .data( PV1 )
-        .enter().append('circle')
-        .attr('cx', function(d) { return projections[1]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-        .attr('cy', function(d) { return projections[1]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-        .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-        .attr('class', 'circle1');
-
-    var bubbles2 = panels[2].selectAll('circle')
-        .data( PV2 )
-        .enter().append('circle')
-        .attr('cx', function(d) { return projections[2]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-        .attr('cy', function(d) { return projections[2]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-        .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-        .attr('class', 'circle2');
-
-    var bubbles3 = panels[3].selectAll('circle')
-        .data( PV3 )
-        .enter().append('circle')
-        .attr('cx', function(d) { return projections[3]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
-        .attr('cy', function(d) { return projections[3]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
-        .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-        .attr('class', 'circle3');
-
-
-    // hover tooltips
-    var div = d3.select('body').append('div')
-        .attr('class', 'tooltip')
-        .style('opacity', 0);
-
-    bubbles0
-        .on('mousemove', function(d) {
-            div.transition()
-                .duration(200)
-                .style('opacity', 0.85);
-            div.html( function() {
-                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                    d[currentDate] + ' pageviews </font>' +
-                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
+        bubbles
+            .on('mousemove', function(d) {
+                div.transition()
+                    .duration(200)
+                    .style('opacity', 0.85);
+                div.html( function() {
+                    return '<strong>' + d.city + '</strong> <br> <font size="1">' +
+                        parseInt(d[currentDate]) + ' pageviews </font>' +
+                        '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
+                })
+                .style('left', d3.event.pageX + 'px')
+                .style('top', (d3.event.pageY - 28) + 'px');
             })
-            .style('left', d3.event.pageX + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
-        })
-        .on('mouseout', function(d) {
-            div.transition()
-                .duration(350)
-                .style('opacity', 0);
-        });
-
-    bubbles1
-        .on('mousemove', function(d) {
-            div.transition()
-                .duration(200)
-                .style('opacity', 0.85);
-            div.html( function() {
-                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                    d[currentDate] + ' pageviews </font>' +
-                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
-            })
-            .style('left', d3.event.pageX + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
-        })
-        .on('mouseout', function(d) {
-            div.transition()
-                .duration(350)
-                .style('opacity', 0);
-        });
-
-    bubbles2
-        .on('mousemove', function(d) {
-            div.transition()
-                .duration(200)
-                .style('opacity', 0.85);
-            div.html( function() {
-                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                    d[currentDate] + ' pageviews </font>' +
-                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
-            })
-            .style('left', d3.event.pageX + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
-        })
-        .on('mouseout', function(d) {
-            div.transition()
-                .duration(350)
-                .style('opacity', 0);
-        });
-
-    bubbles3
-        .on('mousemove', function(d) {
-            div.transition()
-                .duration(200)
-                .style('opacity', 0.85);
-            div.html( function() {
-                return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-                    d[currentDate] + ' pageviews </font>' +
-                    '<br> <font size="1"><font color="grey"> DAY 1 </font></font>'; 
-            })
-            .style('left', d3.event.pageX + 'px')
-            .style('top', (d3.event.pageY - 28) + 'px');
-        })
-        .on('mouseout', function(d) {
-            div.transition()
-                .duration(350)
-                .style('opacity', 0);
-        });
+            .on('mouseout', function(d) {
+                div.transition()
+                    .duration(350)
+                    .style('opacity', 0);
+            });
+    }
     
     dateScale = createDateScale(DATES)
         .range([0,500]);
@@ -285,84 +207,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                 .duration(FRAMELENGTH)
                 .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
                 .style('fill', function(d) { return languageColors( d[currentLanguage] ); });
-
         }
-
-        // bubbles0
-        //     .on('mousemove', function(d) {
-        //         div.transition()
-        //             .duration(200)
-        //             .style('opacity', 0.85);
-        //         div.html( function() {
-        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-        //                 d[currentDate] + ' pageviews </font>' +
-        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-        //         })
-        //         .style('left', d3.event.pageX + 'px')
-        //         .style('top', (d3.event.pageY - 28) + 'px');
-        //     })
-        //     .on('mouseout', function(d) {
-        //         div.transition()
-        //             .duration(350)
-        //             .style('opacity', 0);
-        //     });
-
-        // bubbles1
-        //     .on('mousemove', function(d) {
-        //         div.transition()
-        //             .duration(200)
-        //             .style('opacity', 0.85);
-        //         div.html( function() {
-        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-        //                 d[currentDate] + ' pageviews </font>' +
-        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-        //         })
-        //         .style('left', d3.event.pageX + 'px')
-        //         .style('top', (d3.event.pageY - 28) + 'px');
-        //     })
-        //     .on('mouseout', function(d) {
-        //         div.transition()
-        //             .duration(350)
-        //             .style('opacity', 0);
-        //     });
-
-        // bubbles2
-        //     .on('mousemove', function(d) {
-        //         div.transition()
-        //             .duration(200)
-        //             .style('opacity', 0.85);
-        //         div.html( function() {
-        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-        //                 d[currentDate] + ' pageviews </font>' +
-        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-        //         })
-        //         .style('left', d3.event.pageX + 'px')
-        //         .style('top', (d3.event.pageY - 28) + 'px');
-        //     })
-        //     .on('mouseout', function(d) {
-        //         div.transition()
-        //             .duration(350)
-        //             .style('opacity', 0);
-        //     });
-
-        // bubbles3
-        //     .on('mousemove', function(d) {
-        //         div.transition()
-        //             .duration(200)
-        //             .style('opacity', 0.85);
-        //         div.html( function() {
-        //             return '<strong>' + d.City + '</strong> <br> <font size="1">' +
-        //                 d[currentDate] + ' pageviews </font>' +
-        //                 '<br> <font size="1"><font color="grey"> DAY ' + m + '</font></font>'; 
-        //         })
-        //         .style('left', d3.event.pageX + 'px')
-        //         .style('top', (d3.event.pageY - 28) + 'px');
-        //     })
-        //     .on('mouseout', function(d) {
-        //         div.transition()
-        //             .duration(350)
-        //             .style('opacity', 0);
-        //     });
 
         dateLabel(m);
     }
@@ -383,8 +228,8 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
 
     function animate() {
-        // requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
-        drawFrame();
+        requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
+        // drawFrame();
     }
 
 
@@ -472,22 +317,34 @@ function createLegend() {
     var languages = ['English', 'Espanol', 'French', 'Portuguese', 'Deutsche'];
 
     // LEGEND 1
+    legend.append('text')
+        .text('Majority Language')
+        .attr('x', 5)
+        .attr('y', 118)
+        .style('font-weight', 'bold');
+
     for (var j=0; j<5; j++) {
         // color circles
         legend.append('circle')
             .attr('r', 5)
-            .attr('cx', 10)
+            .attr('cx', 15)
             .attr('cy', 130 + j*15)
             .style('fill', languageColors.range()[j])
             .style('fill-opacity', 0.7);
         // legend text
         legend.append('text')
             .text(languages[j])
-            .attr('x', 25)
+            .attr('x', 30)
             .attr('y', 133 + j*15);
     }
 
     // LEGEND 2
+    legend.append('text')
+        .text('Pageviews')
+        .attr('x', 13)
+        .attr('y', 216)
+        .style('font-weight', 'bold');
+
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
     for ( var i in sizes ) {
         // size circles
@@ -498,11 +355,7 @@ function createLegend() {
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
             .style('stroke', 'darkgrey');
-        // legend text
-        legend.append('text')
-            .text('Pageviews')
-            .attr('x', 17)
-            .attr('y', 215);
+        
         legend.append('text')
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
