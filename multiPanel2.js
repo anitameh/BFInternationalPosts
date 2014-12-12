@@ -114,10 +114,10 @@ queue()
     .defer(d3.csv, 'new-data/panel3-new-data.csv')
     .await(ready);
 
-
+var circles = [];
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
-
+    var tooltipData, hovering;
     var PVs = [PV0, PV1, PV2, PV3];
 
     // draw panels
@@ -156,28 +156,48 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('cx', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
             .attr('cy', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
             .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-            .attr('class', 'circle'+i);
+            .attr('class', 'circle');
 
         bubbles
-            .on('mousemove', function(d) {
+            .on('mouseover', function(d) {
                 div.transition()
                     .duration(200)
                     .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.city + '</strong> <br> <font size="1">' +
-                        parseInt(d[currentDate]) + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
+
+                tooltipData = {
+                    'data': d,
+                    'pos': {
+                        'x': d3.event.pageX + 'px',
+                        'y': (d3.event.pageY - 28) + 'px'
+                    }
+                };
             })
             .on('mouseout', function(d) {
+                tooltipData = null;
                 div.transition()
                     .duration(350)
                     .style('opacity', 0);
             });
+
+        circles.push(bubbles);
     }
-    
+
+    function drawTooltip() {
+        if (tooltipData) {
+            div.html( function() {
+                return '<strong>' + tooltipData.data.city + '</strong> <br> <font size="1">' +
+                    parseInt(tooltipData.data[currentDate]) + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>';
+            })
+            .style('left', tooltipData.pos.x)
+            .style('top', tooltipData.pos.y);
+        }
+        requestAnimationFrame(drawTooltip);
+    }
+
+    requestAnimationFrame(drawTooltip);
+
+
     dateScale = createDateScale(DATES)
         .range([0,500]);
 
@@ -186,22 +206,26 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     createSlider();
 
     // animate
-    d3.select('#play').on('click', function() {
-        isPlaying = true;
-        animate();
+    d3.select('#play-toggle').on('click', function() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            animate();
+        }
+
+        var toRemove = isPlaying ? 'fa-play' : 'fa-pause';
+        var toAdd = isPlaying ? 'fa-pause' : 'fa-play';
+        var icon = this.querySelector('i');
+        icon.classList.remove(toRemove);
+        icon.classList.add(toAdd);
     });
 
-    d3.select('#pause').on('click', function() {
-        isPlaying = false;
-    });
 
     function drawDay(m, tween) {
         currentDate = DATES[ m ];
         currentLanguage = 'Language' + currentDate;
 
         for (var i=0; i<4; i++) {
-            var whichCircle = '.circle' + i;
-            panels[i].selectAll(whichCircle)
+            circles[i]
                 .transition()
                 .ease('linear')
                 .duration(FRAMELENGTH)
