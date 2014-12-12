@@ -186,14 +186,19 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     createSlider();
 
     // animate
-    d3.select('#play').on('click', function() {
-        isPlaying = true;
-        animate();
+    d3.select('#play-toggle').on('click', function() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            animate();
+        }
+
+        var toRemove = isPlaying ? 'fa-play' : 'fa-pause';
+        var toAdd = isPlaying ? 'fa-pause' : 'fa-play';
+        var icon = this.querySelector('i');
+        icon.classList.remove(toRemove);
+        icon.classList.add(toAdd);
     });
 
-    d3.select('#pause').on('click', function() {
-        isPlaying = false;
-    });
 
     function drawDay(m, tween) {
         currentDate = DATES[ m ];
