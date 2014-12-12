@@ -114,7 +114,7 @@ queue()
     .defer(d3.csv, 'new-data/panel3-new-data.csv')
     .await(ready);
 
-
+var circles = [];
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
     var tooltipData, hovering;
@@ -156,7 +156,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('cx', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
             .attr('cy', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
             .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-            .attr('class', 'circle'+i);
+            .attr('class', 'circle');
 
         bubbles
             .on('mouseover', function(d) {
@@ -178,6 +178,8 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                     .duration(350)
                     .style('opacity', 0);
             });
+
+        circles.push(bubbles);
     }
 
     function drawTooltip() {
@@ -223,8 +225,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         currentLanguage = 'Language' + currentDate;
 
         for (var i=0; i<4; i++) {
-            var whichCircle = '.circle' + i;
-            panels[i].selectAll(whichCircle)
+            circles[i]
                 .transition()
                 .ease('linear')
                 .duration(FRAMELENGTH)
