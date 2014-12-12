@@ -117,7 +117,7 @@ queue()
 
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
-
+    var tooltipData, hovering;
     var PVs = [PV0, PV1, PV2, PV3];
 
     // draw panels
@@ -159,25 +159,43 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('class', 'circle'+i);
 
         bubbles
-            .on('mousemove', function(d) {
+            .on('mouseover', function(d) {
                 div.transition()
                     .duration(200)
                     .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.city + '</strong> <br> <font size="1">' +
-                        parseInt(d[currentDate]) + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
+
+                tooltipData = {
+                    'data': d,
+                    'pos': {
+                        'x': d3.event.pageX + 'px',
+                        'y': (d3.event.pageY - 28) + 'px'
+                    }
+                };
             })
             .on('mouseout', function(d) {
+                tooltipData = null;
                 div.transition()
                     .duration(350)
                     .style('opacity', 0);
             });
     }
-    
+
+    function drawTooltip() {
+        if (tooltipData) {
+            div.html( function() {
+                return '<strong>' + tooltipData.data.city + '</strong> <br> <font size="1">' +
+                    parseInt(tooltipData.data[currentDate]) + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>';
+            })
+            .style('left', tooltipData.pos.x)
+            .style('top', tooltipData.pos.y);
+        }
+        requestAnimationFrame(drawTooltip);
+    }
+
+    requestAnimationFrame(drawTooltip);
+
+
     dateScale = createDateScale(DATES)
         .range([0,500]);
 
