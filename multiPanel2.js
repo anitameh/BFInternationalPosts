@@ -73,7 +73,7 @@ function init() {
 
 // initialize global vars
 var GLOBALMIN = 0,
-    GLOBALMAX = 12941, // ******* GET THIS FROM DATA *******
+    GLOBALMAX, // = 12941,
     DATES,
     FRAMELENGTH = 600,
     INCREMENT = 20,
@@ -94,11 +94,9 @@ var GLOBALMIN = 0,
 // scales
 var languageColors = d3.scale.ordinal()
       .domain(['en', 'es', 'fr', 'pt', 'de'])
-      .range(['#67a9cf', '#7FFF00', 'yellow', '#FF1493', '#BF5FFF']);
-      
-var sizeScale = d3.scale.linear()
-    .domain([GLOBALMIN, GLOBALMAX])
-    .range([0, 4000]);
+      .range(['cornflowerblue', '#FF1493', 'coral', 'gold', 'olivedrab']);
+
+var sizeScale;
 
 var monthLabels = d3.scale.ordinal()
       .domain([1,2,3,4,5,6,7,8,9,10,11,12])
@@ -115,13 +113,16 @@ queue()
     .await(ready);
 
 
+var circles = [];
 
 function ready(error, world, PV0, PV1, PV2, PV3) {
 
+    // initialize some variables
+    var tooltipData;
     var PVs = [PV0, PV1, PV2, PV3];
-
-    // draw panels
-    init();
+    
+    
+    init(); // draw panels
 
     // draw parts of world map in each panel
     for (var i=0; i<4; i++) {
@@ -137,7 +138,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         .attr('class', 'tooltip')
         .style('opacity', 0);
 
-    // create bubbles for initial view
+    // bubble prep for initial view
     var headers = d3.keys( PV0[0] );
     var dateLength = (headers.length-2)/2; // always even because each date col has a corresponding language col
     DATES = headers.slice(0, dateLength-1); // get dates for this post
@@ -148,6 +149,24 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     var currentDate = DATES[0];
     var currentLanguage = 'Language' + currentDate;
 
+
+    // get global max
+    var allvals = [];
+    for (var j=0; j<4; j++) {
+        PVs[j].forEach(function(d) {
+            for (var i=0; i<DATES.length; i++) {
+                allvals.push( parseInt(d[ DATES[i] ]) );
+            }  
+        });
+    }
+    GLOBALMAX = d3.max(allvals);
+
+
+    // now set sizeScale
+    sizeScale = d3.scale.linear()
+        .domain([GLOBALMIN, GLOBALMAX])
+        .range([0, 4000]);
+
     // draw them
     for (var i=0; i<4; i++) {
         var bubbles = panels[i].selectAll('circle')
@@ -156,28 +175,52 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('cx', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[0]; })
             .attr('cy', function(d) { return projections[i]([parseFloat(d.Longitude), parseFloat(d.Latitude)])[1]; })
             .attr('r', function(d) { return computeRadius(sizeScale( d[currentDate] )); })
-            .attr('class', 'circle'+i);
+            .attr('class', 'circle');
 
         bubbles
-            .on('mousemove', function(d) {
+            .on('mouseover', function(d) {
                 div.transition()
                     .duration(200)
                     .style('opacity', 0.85);
-                div.html( function() {
-                    return '<strong>' + d.city + '</strong> <br> <font size="1">' +
-                        parseInt(d[currentDate]) + ' pageviews </font>' +
-                        '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
-                })
-                .style('left', d3.event.pageX + 'px')
-                .style('top', (d3.event.pageY - 28) + 'px');
+
+                tooltipData = {
+                    'data':d,
+                    'pos': {
+                        'x': d3.event.pageX + 'px',
+                        'y': (d3.event.pageY-28) + 'px'
+                    }
+                };
             })
             .on('mouseout', function(d) {
+                tooltipData = null;
                 div.transition()
                     .duration(350)
                     .style('opacity', 0);
+                
             });
+
+        circles.push(bubbles);
     }
+
+
+    // update tooltip *while* hovering over bubbles
+    function drawTooltip() {
+        if (tooltipData) {
+            div.html( function() {
+                return '<strong>' + tooltipData.data.city + '</strong> <br> <font size="1">' +
+                    parseInt(tooltipData.data[currentDate]) + ' pageviews </font>' +
+                    '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
+            })
+            .style('left', tooltipData.pos.x)
+            .style('top', tooltipData.pos.y);
+        }
+        requestAnimationFrame(drawTooltip);
+    }
+
+    requestAnimationFrame(drawTooltip);
+
     
+
     dateScale = createDateScale(DATES)
         .range([0,500]);
 
@@ -185,23 +228,31 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
     createSlider();
 
-    // animate
-    d3.select('#play').on('click', function() {
-        isPlaying = true;
-        animate();
+    // animation button
+    d3.select('#play-toggle').on('click', function() {
+
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            animate();
+        }
+
+        // change class of button (i.e. change image to pause)
+        var toRemove = isPlaying ? 'fa-play' : 'fa-pause';
+        var toAdd = isPlaying ? 'fa-pause' : 'fa-play';
+        var icon = this.querySelector('i'); // get current class
+        
+        icon.classList.remove(toRemove); // remove the right one
+        icon.classList.add(toAdd); // add the right one
+
     });
 
-    d3.select('#pause').on('click', function() {
-        isPlaying = false;
-    });
 
     function drawDay(m, tween) {
         currentDate = DATES[ m ];
         currentLanguage = 'Language' + currentDate;
 
         for (var i=0; i<4; i++) {
-            var whichCircle = '.circle' + i;
-            panels[i].selectAll(whichCircle)
+            circles[i]
                 .transition()
                 .ease('linear')
                 .duration(FRAMELENGTH)
@@ -221,7 +272,6 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         drawDay( currentFrame, true );
 
         if (isPlaying) {
-            // requestAnimationFrame(drawFrame);
             setTimeout(drawFrame, FRAMELENGTH);
         }
     }
@@ -229,7 +279,6 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
     function animate() {
         requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
-        // drawFrame();
     }
 
 
@@ -266,7 +315,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('width', dateScale.range()[1])
             .attr('height', 50)
             .append('g')
-                .attr('transform', 'translate(0,15)')
+                .attr('transform', 'translate(5,15)')
                 .attr('class', 'axis')
                 .call( sliderAxis );
     }
@@ -366,7 +415,7 @@ function createLegend() {
 
 // round up legend labels
 function roundUp(x) {
-    return 100*Math.ceil(x/100);
+    return 1000*Math.ceil(x/1000);
 }
 
 // compute radius so that AREA ~ pageviews

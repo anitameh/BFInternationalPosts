@@ -23,7 +23,7 @@
             /* table & background */
             td {
                 padding: 2px, 2px;
-                border: 2px solid black;
+                border: 2px solid grey;
             }
 
             table {
@@ -37,56 +37,23 @@
             }
 
             .country {
-                fill: black;
-                fill-opacity: 0.8;
-                stroke: lightgrey;       
-                stroke-width: .8px;
+                fill: lightgrey;
+                fill-opacity: 0.55;
+                stroke: white;       
+                stroke-width: 1.1px;
                 stroke-linejoin: round;
             }
 
 
             /* bubbles */
-            .circle0 {
+            .circle {
                 fill: #67a9cf;
                 fill-opacity: 0.65;
                 stroke-width: 0.75px;
+                stroke: rgba(255, 255, 255, 0.5);
             }
 
-            .circle1 {
-                fill: #67a9cf;
-                fill-opacity: 0.65;
-                stroke-width: 0.75px;
-            }
-
-            .circle2 {
-                fill: #67a9cf;
-                fill-opacity: 0.65;
-                stroke-width: 0.75px;
-            }
-
-            .circle3 {
-                fill: #67a9cf;
-                fill-opacity: 0.65;
-                stroke-width: 0.75px;
-            }
-
-
-            .circle0:hover {
-                stroke: white;
-                stroke-width: 2;
-            }
-
-            .circle1:hover {
-                stroke: white;
-                stroke-width: 2;
-            }
-
-            .circle2:hover {
-                stroke: white;
-                stroke-width: 2;
-            }
-
-            .circle3:hover {
+            .circle:hover {
                 stroke: white;
                 stroke-width: 2;
             }
@@ -116,7 +83,7 @@
             }
 
 
-            /* this */
+            /* date and slider */
             #date, #slider-container{
               display: inline-block;
               vertical-align: middle;
@@ -147,29 +114,11 @@
               width: 2.55em;
             }
 
-            /* play button */
-            button {
-                position: absolute;
-                height: 25px;
-                width: 53px;
-            }
-
-            button#play{
-                margin-top: 20px;
-                margin-left: 40px;
-                cursor: pointer;
-            }
-
-            button#pause {
-                margin-top: 45px;
-                margin-left: 40px;
-                cursor: pointer;
-            }
 
             /* slider */
             #slider-container{
               position: absolute;
-              margin-left: 130px;
+              margin-left: 110px;
               margin-top: 35px;
             }
 
@@ -188,6 +137,21 @@
 
             .axis text{
                 font-size: 8px;
+            }
+
+
+            /* play button */
+            button {
+                position: absolute;
+                height: 53px;
+                width: 53px;
+                margin-top: 20px;
+                margin-left: 25px;
+                color: dimgrey;
+            }
+
+            button:hover {
+                cursor: pointer;
             }
 
 
@@ -211,13 +175,12 @@
             <div id="date">
                 <p> Total pageviews till: </p>
                 <p id="month">
-                    <span> SEP</span>04 2014 <!-- initial date -->
+                    <span> FEB</span>09 2014 <!-- initial date -->
                 </p>
             </div>
 
-            <!-- play/pause buttons -->
-            <button id="play"   title="Play animation"  ><i class='fa fa-play'></i></button>
-            <button id="pause"  title="Pause animation" ><i class='fa fa-pause'></i></button>
+            <!-- play/pause button -->
+            <button id="play-toggle"><i class='fa fa-play fa-2x'></i>  </button>
             
             <!-- slider -->
             <div id="slider-container" style="width:500px">
