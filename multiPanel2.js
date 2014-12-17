@@ -73,7 +73,7 @@ function init() {
 
 // initialize global vars
 var GLOBALMIN = 0,
-    GLOBALMAX, // = 12941,
+    GLOBALMAX,
     DATES,
     FRAMELENGTH = 600,
     INCREMENT = 20,
@@ -305,6 +305,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         // draw labels onto slider
         var sliderAxis = d3.svg.axis()
             .scale( dateScale )
+            .tickSize(6, 0) // length of ticks, no first tick
             .orient('bottom')
             .tickFormat(function(d) {
                 return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
@@ -315,7 +316,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .attr('width', dateScale.range()[1])
             .attr('height', 50)
             .append('g')
-                .attr('transform', 'translate(5,15)')
+                .attr('transform', 'translate(1,14)')
                 .attr('class', 'axis')
                 .call( sliderAxis );
     }
@@ -367,31 +368,31 @@ function createLegend() {
 
     // LEGEND 1
     legend.append('text')
-        .text('Majority Language')
-        .attr('x', 5)
-        .attr('y', 118)
+        .text('LANGUAGE')
+        .attr('x', 15)
+        .attr('y', 25)
         .style('font-weight', 'bold');
 
-    for (var j=0; j<5; j++) {
+    for (var j=0; j<4; j++) {
         // color circles
         legend.append('circle')
-            .attr('r', 5)
-            .attr('cx', 15)
-            .attr('cy', 130 + j*15)
+            .attr('r', 15)
+            .attr('cx', 30)
+            .attr('cy', 45 + j*35)
             .style('fill', languageColors.range()[j])
             .style('fill-opacity', 0.7);
         // legend text
         legend.append('text')
             .text(languages[j])
-            .attr('x', 30)
-            .attr('y', 133 + j*15);
+            .attr('x', 50)
+            .attr('y', 49 + j*35);
     }
 
     // LEGEND 2
     legend.append('text')
-        .text('Pageviews')
+        .text('PAGEVIEWS')
         .attr('x', 13)
-        .attr('y', 216)
+        .attr('y', 205)
         .style('font-weight', 'bold');
 
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
@@ -399,8 +400,8 @@ function createLegend() {
         // size circles
         legend.append('circle')
             .attr('r', parseInt( computeRadius(sizeScale( sizes[i] )) ))
-            .attr('cx', 5 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
-            .attr('cy', -5+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
+            .attr('cx', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
+            .attr('cy', -15+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
             .style('stroke', 'darkgrey');
@@ -408,8 +409,9 @@ function createLegend() {
         legend.append('text')
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
-            .attr('x', 5 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
-            .attr('y', -5+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5);
+            .attr('x', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
+            .attr('y', -15+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5)
+            .style('font-size', '11');
     }
 }
 

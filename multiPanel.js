@@ -101,10 +101,10 @@ var sizeScale = d3.scale.linear()
 // load data
 queue()
     .defer(d3.json, "new-data/world-50m.json")
-    .defer(d3.csv, "new-data/panel0-data.csv")
-    .defer(d3.csv, "new-data/panel1-data.csv")
-    .defer(d3.csv, "new-data/panel2-data.csv")
-    .defer(d3.csv, "new-data/panel3-data.csv")
+    .defer(d3.csv, "new-data/panel0-new-data.csv")
+    .defer(d3.csv, "new-data/panel1-new-data.csv")
+    .defer(d3.csv, "new-data/panel2-new-data.csv")
+    .defer(d3.csv, "new-data/panel3-new-data.csv")
     .await(ready);
 
 

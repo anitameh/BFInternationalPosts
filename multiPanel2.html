@@ -3,22 +3,19 @@
     <head>
         <meta charset="utf-8">
         <title>The International Life of a Translated Post</title>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,600,800,400' rel='stylesheet' type='text/css'>
     </head>
     <body>
 
-        <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script src="http://d3js.org/queue.v1.min.js"></script>
-        <script src="http://d3js.org/topojson.v0.min.js"></script>     
-        <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
-        <script src="libs/ModifiedColorbrewer.js"></script>
-        <link rel="stylesheet" href="libs/d3.slider.css" />  <!-- this is a modified version (stylistic changes) -->
-        <script src="libs/d3.slider.js"></script>
-        <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
-    
-
-
 
         <style type="text/css">
+
+            body {
+                font-family: "Helvetica Nueue", Arial, Helvetica, sans-serif;
+                fill: black;
+                fill-opacity: 0.8;
+                overflow: hidden;
+            }
 
             /* table & background */
             td {
@@ -27,6 +24,7 @@
             }
 
             table {
+            	margin-top: 10px;
                 border-collapse: collapse;
             }
 
@@ -49,7 +47,7 @@
             .circle {
                 fill: #67a9cf;
                 fill-opacity: 0.65;
-                stroke-width: 0.75px;
+                stroke-width: 1px;
                 stroke: rgba(255, 255, 255, 0.5);
             }
 
@@ -67,7 +65,6 @@
                 height: 45px;
                 padding: 2px;
                 font-size: 13px;
-                font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
                 background: white;
                 border: 1px;
                 box-shadow: 1px 1px 5px grey;
@@ -78,7 +75,7 @@
 
             /* legend */
             #legend text{
-                font-size: 10px;
+                font-size: 14px;
                 font-family: sans-serif;
             }
 
@@ -91,35 +88,39 @@
             }
 
             #date{
-              border-left: 5px solid #ccc;
-              padding: 3px 0 3px 10px;
-              margin-left: 60px;
-              color: #333;
-              font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+                border-left: 5px solid #ccc;
+                padding: 3px 0 3px 10px;
+                margin-left: 60px;
+                color: black;
+                opacity: 0.7;
+
             }
             #date p{
-              margin: 0;
+                margin: 0;
+                
             }
             #date p:first-child{
-              color: #999;
-              font-size: 11px;
-              line-height: 13px;
+                font-size: 11px;
+                line-height: 13px;
             }
             #date p#month{
-              font-size: 30px;
-              line-height: 30px;
+            	position: absolute;
+                font-size: 30px;
+                line-height: 30px;
+                font-weight: 700;
+                
             }
             #date p#month span{
-              float: left;
-              width: 2.55em;
+                float: left;
+                width: 2.55em;
             }
 
 
             /* slider */
             #slider-container{
-              position: absolute;
-              margin-left: 110px;
-              margin-top: 35px;
+                position: absolute;
+                margin-left: 190px;
+                margin-top: 35px;
             }
 
 
@@ -146,12 +147,31 @@
                 height: 53px;
                 width: 53px;
                 margin-top: 20px;
-                margin-left: 25px;
+                margin-left: 110px;
                 color: dimgrey;
+                border-radius: 10px;
+                border: 1px solid lightgrey;
+                background-color: whitesmoke;
+                box-shadow: none;
             }
+
+            button:focus {
+			 	outline-color: transparent;
+			 	outline-style: none;
+			}
+
 
             button:hover {
                 cursor: pointer;
+            }
+
+            /* title */
+            #title {
+                font-size: 30px;
+                font-family: "Open Sans", sans-serif;
+                font-weight: 600;
+                color: black;
+                opacity: 0.8;
             }
 
 
@@ -159,6 +179,9 @@
 
 
         <!-- set up viz for 2x2-panel layout -->
+        <body> 
+            <div id="title">31 Special Feelings That Every Dog Owner Is Familiar With</div>
+        </body>
         <table>
             <tr>
                 <td><div id="panel0"></div></td>
@@ -187,8 +210,16 @@
             </div>
         </body>
 
-
-        <script src="multiPanel2.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+        <script src="http://d3js.org/queue.v1.min.js"></script>
+        <script src="http://d3js.org/topojson.v0.min.js"></script>     
+        <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+        <script src="libs/ModifiedColorbrewer.js"></script>
+        <link rel="stylesheet" href="libs/d3.slider.css" />  <!-- this is a modified version (stylistic changes) -->
+        <script src="libs/d3.slider.js"></script>
+        <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+        
+        <script src="multipanel2.js"></script>
 
     </body>
 </html>
