@@ -212,7 +212,12 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                     '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
             })
             .style('left', tooltipData.pos.x)
-            .style('top', tooltipData.pos.y);
+            .style('top', tooltipData.pos.y)
+            .style("font-size", function(d) {
+            	if ((tooltipData.data.city).length > 11) {
+	            	return (10 + (tooltipData.data.city).length%10/5.5) + 'px';	// resize font if city name is long
+            	}	
+            });
         }
         requestAnimationFrame(drawTooltip);
     }
@@ -313,12 +318,14 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
         d3.select('#slider-container')
             .append('svg')
-            .attr('width', dateScale.range()[1])
+            .attr('width', 50+dateScale.range()[1])
             .attr('height', 50)
             .append('g')
                 .attr('transform', 'translate(1,14)')
                 .attr('class', 'axis')
                 .call( sliderAxis );
+
+        console.log( 'axis width: ' + (50+dateScale.range()[1]) );
     }
 
 }
