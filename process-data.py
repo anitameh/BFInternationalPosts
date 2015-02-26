@@ -7,8 +7,9 @@ PROCESS-DATA outputs five files: one with the complete set of data, and four fil
 	of the first, and correspond to each of the panels in the visualization.
 
 Required files:
- * country files containing the countries in each panel (see github.com/anitameh/BFInternationalPosts)
+ * country files containing the countries in each panel (see github.com/anitameh/BFInternationalPosts/country-list)
  * a directory titled new-data
+ * the raw data files (obv)
 '''
 
 def makeCityCountryCol(data):
