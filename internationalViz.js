@@ -105,11 +105,11 @@ var monthLabels = d3.scale.ordinal()
 
 // load data
 queue()
-    .defer(d3.json, 'new-data/world-50m.json')
-    .defer(d3.csv, 'new-data/panel0-new-data.csv')
-    .defer(d3.csv, 'new-data/panel1-new-data.csv')
-    .defer(d3.csv, 'new-data/panel2-new-data.csv')
-    .defer(d3.csv, 'new-data/panel3-new-data.csv')
+    .defer(d3.json, 'world-50m.json')
+    .defer(d3.csv, 'sxsw-data/new-data/panel0-data.csv')
+    .defer(d3.csv, 'sxsw-data/new-data/panel1-data.csv')
+    .defer(d3.csv, 'sxsw-data/new-data/panel2-data.csv')
+    .defer(d3.csv, 'sxsw-data/new-data/panel3-data.csv')
     .await(ready);
 
 
@@ -298,7 +298,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                     .scale( sliderScale )
                     .on('slide', function(event, value) {
                         isPlaying = false;
-                        currentFrame = Math.round(value);
+                        currentFrame = Math.floor(value);
                         // update to this particular date
                         drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
                     })
@@ -313,7 +313,17 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .tickSize(6, 0) // length of ticks, no first tick
             .orient('bottom')
             .tickFormat(function(d) {
-                return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
+                // handle time
+                time = parseInt(d.getHours()) - 5
+                if (time < 0) {
+                    time = time+12
+                    time = time.toString() + ':00pm'
+                }
+                else {
+                    time = time.toString() + ':00'
+                } 
+                // return date and time
+                return (d.getMonth()+1) + '/' + d.getDate() + ' ' + time; // the +1 accounts for UTC time
             });
 
         d3.select('#slider-container')
@@ -324,13 +334,8 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                 .attr('transform', 'translate(1,14)')
                 .attr('class', 'axis')
                 .call( sliderAxis );
-
-        console.log( 'axis width: ' + (50+dateScale.range()[1]) );
     }
-
 }
-
-
 
 
 // OTHER FUNCTIONS
@@ -339,8 +344,8 @@ function createDateScale( DATES ) {
     var start = DATES[0],
         end = DATES[DATES.length-1];
 
-    var start_again = start.slice(0,4) + '-' + start.slice(4,6) + '-' + start.slice(6, 8),
-        end_again = end.slice(0,4) + '-' + end.slice(4,6) + '-' + end.slice(6, 8);
+    var start_again = start.slice(0,4) + '-' + start.slice(4,6) + '-' + (parseInt(start.slice(6, 8))+1).toString(),
+        end_again = end.slice(0,4) + '-' + end.slice(4,6) + '-' + (parseInt(end.slice(6, 8))+1).toString();
 
     var start_date = new Date(start_again),
         end_date = new Date(end_again);
@@ -380,7 +385,7 @@ function createLegend() {
         .attr('y', 25)
         .style('font-weight', 'bold');
 
-    for (var j=0; j<4; j++) {
+    for (var j=0; j<5; j++) {
         // color circles
         legend.append('circle')
             .attr('r', 15)
@@ -399,7 +404,7 @@ function createLegend() {
     legend.append('text')
         .text('PAGEVIEWS')
         .attr('x', 13)
-        .attr('y', 205)
+        .attr('y', 225)
         .style('font-weight', 'bold');
 
     var sizes = [ GLOBALMAX/5, GLOBALMAX/2, GLOBALMAX ];
@@ -408,7 +413,7 @@ function createLegend() {
         legend.append('circle')
             .attr('r', parseInt( computeRadius(sizeScale( sizes[i] )) ))
             .attr('cx', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
-            .attr('cy', -15+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
+            .attr('cy', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
             .style('stroke', 'darkgrey');
@@ -417,7 +422,7 @@ function createLegend() {
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
             .attr('x', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
-            .attr('y', -15+8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5)
+            .attr('y', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5)
             .style('font-size', '11');
     }
 }

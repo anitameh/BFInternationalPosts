@@ -3,5 +3,6 @@
 .ipynb_checkpoints/*
 data/*
 new-data/*
+sxsw-data/*
 .DS_Store
 rawdata-notes.txt
