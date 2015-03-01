@@ -4,5 +4,6 @@
 data/*
 new-data/*
 sxsw-data/*
+thedress-data/*
 .DS_Store
 rawdata-notes.txt

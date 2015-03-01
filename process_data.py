@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 import scipy as sp
 import sys
 
@@ -12,6 +13,17 @@ Required files:
  * a directory titled new-data with the raw data files
  * the raw data files (obv)
 '''
+
+def readData( data_pathname, list_of_files, lang ):
+	"""
+	Read in partitioned data, add language column, & output data frame.
+	"""
+    alldata = pd.DataFrame()
+    for datafile in list_of_files:
+        df = pd.read_csv( data_pathname + datafile )
+        alldata = alldata.append( df )
+    alldata['Language'] = lang
+    return alldata
 
 def makeCityCountryCol(data):
 	'''
@@ -139,49 +151,44 @@ missing_lon = [84.58, 61.52, 2.18, 75.34, 0.13, 2.23, 23.72, 0.2, 1.36, 2.60, 78
 
 def main():
 
-	OUTPUT_DIR = str( sys.argv[1] )
-	FILTERED_OUTPUT_DIR = str( sys.argv[2] )
+	INPUT_DIR = str( sys.argv[1] )
+	OUTPUT_DIR = str( sys.argv[2] )
+	FILTERED_OUTPUT_DIR = str( sys.argv[3] )
+	PRUNE_BOOL = int( sys.argv[4] )
+	THRESHOLD = int( sys.argv[5] )
+	FINAL_COL = str(sys.argv[6] )
+	NUM_LANG = str(sys.argv[7] )
 
-	################################### AUTOMATE THIS ###################################
-	# read in the data - this is for the 31 Sentiments visual in the DataBlog post
-	english_data0 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_23-feb to 23-feb_part1.csv')
-	english_data1 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_23-feb to 23-feb_part2.csv')
-	english_data2 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_23-feb to 24-feb.csv')
-	english_data3 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_24-feb to 24-feb_part1.csv')
-	english_data4 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_24-feb to 24-feb_part2.csv')
-	english_data5 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_24-feb to 25-feb.csv')
-	english_data6 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_25-feb to 26_feb.csv')
-	english_data7 = pd.read_csv('sxsw-data/original-data/International Visualization Post_en_26-feb to 26-feb.csv')
+	CURR_DIR = os.getcwd()
+	data_pathname = CURR_DIR + '/' + INPUT_DIR
 
-	# spanish_data0 = pd.read_csv('new-data/original-data2/International Visualization Post_es_17-feb to 23-feb.csv')
-	# spanish_data1 = pd.read_csv('new-data/original-data2/International Visualization Post_24-feb to 2-mar.csv')
+	# separate data
+	en_data, es_data, fr_data, de_data, pt_data = [], [], [], [], []
+	for f in os.listdir(data_pathname):
+		if re.search('_en_', f):
+			en_data.append( f )
+		if re.search('_fr_', f):
+			fr_data.append( f )
+		if re.search('_de_', f):
+			de_data.append( f )
+		if re.search('_pt_', f):
+			pt_data.append( f )
+		if re.search('_es_', f):
+			es_data.append( f )
 
-	french_data0 = pd.read_csv('sxsw-data/original-data/International Visualization Post_fr_23-feb to 26-feb.csv')
-	port_data0 = pd.read_csv('sxsw-data/original-data/International Visualization Post_pt_23-feb to 26-feb.csv')
-	germ_data0 = pd.read_csv('sxsw-data/original-data/International Visualization Post_de_23-feb to 26-feb.csv')
-
-	# combine all data into one giant df
-	english_data = pd.concat([english_data0, english_data1, english_data2, english_data3, english_data4, english_data5, english_data6])
-	# spanish_data = pd.concat([spanish_data0, spanish_data1])
-	french_data = french_data0
-	port_data = port_data0
-	germ_data = germ_data0
-
-	english_data['Language'] = 'en'
-	# spanish_data['Language'] = 'es'
-	french_data['Language'] = 'fr'
-	port_data['Language'] = 'pt'
-	germ_data['Language'] = 'de'
+	# read in data & add in language column
+	english_data = readData( data_pathname, en_data, 'en' )
+	french_data = readData( data_pathname, fr_data, 'fr' )
+	german_data = readData( data_pathname, de_data, 'de' )
+	port_data = readData( data_pathname, pt_data, 'pt' )
+	spanish_data = readData( data_pathname, es_data, 'es' )
 
 	original_data = pd.concat([english_data, french_data, port_data, germ_data])
-	#########################################################################################################
-
 
 	# add CityCountry column
 	result = makeCityCountryCol(original_data)
 	city_country, data = result[0], result[1]
 
-	################################### AUTOMATE THIS ###################################
 	# handle (0, 0)-(LAT, LON) values
 	zero_cities_en = ccWithZero(missing_cities, 0)
 	zero_cities_es = ccWithZero(missing_cities, 1)
@@ -190,7 +197,6 @@ def main():
 	zero_cities_de = ccWithZero(missing_cities, 4)
 
 	zero_cities = np.concatenate( (zero_cities_en, zero_cities_es, zero_cities_fr, zero_cities_fr, zero_cities_pt) )
-	###############################################################################
 	
 	zero_lat, zero_lon = missing_lat*5, missing_lon*5
 
@@ -306,13 +312,9 @@ def main():
 	panel3.to_csv(OUTPUT_DIR + '/panel3-data.csv', index=False)
 
 
-	# prune data (adjust threshold)
-	threshold=40
-	finalcol='20150226'
-	num_lang = 4
-	prune(OUTPUT_DIR, FILTERED_OUTPUT_DIR, threshold, finalcol, num_lang)
+	if PRUNE_BOOL == 1:# prune data (adjust threshold)
+		prune(OUTPUT_DIR, FILTERED_OUTPUT_DIR, THRESHOLD, FINAL_COL, NUM_LANG)
 
-        
 
 if __name__ == '__main__':
 	main()
