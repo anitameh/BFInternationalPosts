@@ -24,7 +24,7 @@
             }
 
             table {
-            	margin-top: 10px;
+                margin-top: 10px;
                 border-collapse: collapse;
             }
 
@@ -80,14 +80,11 @@
             }
 
 
-            /* date and slider */
-            #date, #slider-container{
-              display: inline-block;
-              vertical-align: middle;
-              margin-top: 20px;
-            }
-
+            /* date */
             #date{
+                display: inline-block;
+                vertical-align: middle;
+                margin-top: 20px;
                 border-left: 5px solid #ccc;
                 padding: 3px 0 3px 10px;
                 margin-left: 60px;
@@ -104,7 +101,7 @@
                 line-height: 13px;
             }
             #date p#month{
-            	position: absolute;
+                position: absolute;
                 font-size: 30px;
                 line-height: 30px;
                 font-weight: 700;
@@ -121,6 +118,34 @@
                 position: absolute;
                 margin-left: 190px;
                 margin-top: 35px;
+            }
+
+            div.date {
+                position: absolute;
+                margin-left: 275px;
+                margin-top: -10px;
+                width: 75px;
+                height: 25px;
+                font-size: 12px;
+                color: grey;
+                font-family: 'Trebuchet MS', Helvetica, sans-serif;
+                font-weight: bold;
+                text-align: center;
+                line-height: 25px;
+                border-radius: 5px;
+                border: 1px solid lightgrey;
+                background-color: white;
+                box-shadow: none;
+            }
+
+            div.date:hover {
+                cursor: pointer;
+            }
+
+            div.date.dateactive {
+                background-color: black;
+                color: white;
+                cursor: pointer;
             }
 
 
@@ -156,9 +181,9 @@
             }
 
             button:focus {
-			 	outline-color: transparent;
-			 	outline-style: none;
-			}
+                outline-color: transparent;
+                outline-style: none;
+            }
 
 
             button:hover {
@@ -180,7 +205,7 @@
 
         <!-- set up viz for 2x2-panel layout -->
         <body> 
-            <div id="title">#thedress Acceleration</div>
+            <div id="title">#TheDress Acceleration</div>
         </body>
         <table>
             <tr>
@@ -206,7 +231,6 @@
             <button id="play-toggle"><i class='fa fa-play fa-2x'></i>  </button>
             
             <!-- slider -->
-            <div id="slider-container" style="width:500px">
             </div>
         </body>
 
@@ -215,11 +239,11 @@
         <script src="http://d3js.org/topojson.v0.min.js"></script>     
         <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
         <script src="libs/ModifiedColorbrewer.js"></script>
-        <link rel="stylesheet" href="libs/d3.slider.css" />  <!-- this is a modified version (stylistic changes) -->
-        <script src="libs/d3.slider.js"></script>
+        <!-- // <link rel="stylesheet" href="libs/d3.slider.css" /> -->  <!-- this is a modified version (stylistic changes) -->
+        <!-- // <script src="libs/d3.slider.js"></script> -->
         <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
         
-        <script src="internationalViz.js"></script>
+        <script src="internationalViz2.js"></script>
 
     </body>
 </html>

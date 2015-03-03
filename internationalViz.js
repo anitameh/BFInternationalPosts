@@ -75,7 +75,7 @@ function init() {
 var GLOBALMIN = 0,
     GLOBALMAX,
     DATES,
-    FRAMELENGTH = 600,
+    FRAMELENGTH = 450,
     INCREMENT = 20,
     SLIDERWIDTH = 500,
     isPlaying = false,
@@ -120,7 +120,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     // initialize some variables
     var tooltipData;
     var PVs = [PV0, PV1, PV2, PV3];
-    
+    var timer = 0;
     
     init(); // draw panels
 
@@ -214,9 +214,9 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
             .style('left', tooltipData.pos.x)
             .style('top', tooltipData.pos.y)
             .style("font-size", function(d) {
-            	if ((tooltipData.data.city).length > 11) {
-	            	return (10 + (tooltipData.data.city).length%10/5.5) + 'px';	// resize font if city name is long
-            	}	
+                if ((tooltipData.data.city).length > 11) {
+                    return (10 + (tooltipData.data.city).length%10/5.5) + 'px'; // resize font if city name is long
+                }   
             });
         }
         requestAnimationFrame(drawTooltip);
@@ -230,7 +230,6 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
     createLegend();
 
-    createSlider();
 
     // animation button
     d3.select('#play-toggle').on('click', function() {
@@ -238,6 +237,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         isPlaying = !isPlaying;
         if (isPlaying) {
             animate();
+            d3.select('.dateactive').classed('dateactive', false);
         }
 
         // change class of button (i.e. change image to pause)
@@ -264,84 +264,67 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                 .style('fill', function(d) { return languageColors( d[currentLanguage] ); });
         }
 
-        dateLabel(m);
+        dateLabel(m); // update big date on LHS
     }
 
 
-    function drawFrame() {
+    function showCycle() {
+        // cycle over all frames
         currentFrame++;
         currentFrame = currentFrame % DATES.length; // continue looping until pause pressed
-
-        slider.value(currentFrame);
         drawDay( currentFrame, true );
 
         if (isPlaying) {
-            setTimeout(drawFrame, FRAMELENGTH);
+            timer = setTimeout(showCycle, FRAMELENGTH);
         }
     }
 
 
     function animate() {
-        requestAnimationFrame(drawFrame); // requestAnimationFrame optimizes re-drawing with page paint
+        requestAnimationFrame(showCycle); // requestAnimationFrame optimizes re-drawing with page paint
     }
 
+    // add DIVs with dates
+    var dateDiv = d3.select('body').append('div')
+        .data(DATES)
+        .enter()
+        .append('div')
+            .attr('class', 'date')
+            .style('left', function(d, i) { 
+                return ((SLIDERWIDTH/DATES.length)*i + 'px'); 
+            })
+            .text( function(d, i) { 
+                return d.slice(4,6) + '/' + d.slice(6,8); 
+            })
+        .on('click', clicked); 
 
-    function createSlider() {
 
-        sliderScale = d3.scale.linear()
-            .domain([0, DATES.length]);
+    function clicked(d) {
+        // select date div and highlight it
+        d3.select('.date.dateactive').classed('dateactive', false);
+        d3.select(this).classed('dateactive', true);
 
-        var val = slider ? slider.value() : 0;
+        currentFrame = DATES.indexOf(d);
 
-        slider = d3.slider()
-                    .scale( sliderScale )
-                    .on('slide', function(event, value) {
-                        isPlaying = false;
-                        // currentFrame = Math.floor(value);
-                        currentFrame = Math.ceil(value);
-                        // update to this particular date
-                        drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
-                    })
-                    .value(val);
+        drawDay(currentFrame);
+    };
 
-        d3.select('#slider-container')
-            .call( slider );
+    
 
-        // draw labels onto slider
-        var sliderAxis = d3.svg.axis()
-            .scale( dateScale )
-            .tickSize(6, 0) // length of ticks, no first tick
-            .orient('bottom')
-            .tickFormat(function(d) {
-                // handle time
-                time = parseInt(d.getHours()) - 5
-                if (time < 0) {
-                    time = time+12
-                    time = time.toString() + 'pm'
-                }
-                else {
-                    time = time.toString() + 'am'
-                } 
-                // return date (and time)
-                return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
-                // return (d.getMonth()+1) + '/' + d.getDate() + ' ' + time; // the +1 accounts for UTC time
-
-            });
-
-        d3.select('#slider-container')
-            .append('svg')
-            .attr('width', 50+dateScale.range()[1])
-            .attr('height', 50)
-            .append('g')
-                .attr('transform', 'translate(1,14)')
-                .attr('class', 'axis')
-                .call( sliderAxis );
+    function startAnimation() {
+        showCycle();
     }
+
+    function pauseAnimation() {
+        clearTimeout(timer);
+    }
+
 }
 
 
 // OTHER FUNCTIONS
 
+// create date scale
 function createDateScale( DATES ) {
     var start = DATES[0],
         end = DATES[DATES.length-1];
@@ -357,13 +340,14 @@ function createDateScale( DATES ) {
         .domain([start_date, end_date]);
 }
 
-
+// create a date out of date string YYYYMMDD
 function createDate( dateStr ) {
 
     var choppedDate = dateStr.slice(0,4) + '-' + dateStr.slice(4,6) + '-' + (parseInt(dateStr.slice(6, 8))+1).toString();
     return new Date( choppedDate );
 }
 
+// create labels for axis
 function dateLabel(m) {
 
     // date label
@@ -375,7 +359,6 @@ function dateLabel(m) {
         .text( month + ' ' + day + ' ' + year );
 
 }
-
 
 // make legend
 function createLegend() {
@@ -440,6 +423,7 @@ function createLegend() {
 function roundUp(x) {
     return 1000*Math.ceil(x/1000);
 }
+
 
 // compute radius so that AREA ~ pageviews
 function computeRadius(x) {
