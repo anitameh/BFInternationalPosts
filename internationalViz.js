@@ -106,10 +106,10 @@ var monthLabels = d3.scale.ordinal()
 // load data
 queue()
     .defer(d3.json, 'world-50m.json')
-    .defer(d3.csv, 'thedress-data/acceleration/panel0-new-data.csv')
-    .defer(d3.csv, 'thedress-data/acceleration/panel1-new-data.csv')
-    .defer(d3.csv, 'thedress-data/acceleration/panel2-new-data.csv')
-    .defer(d3.csv, 'thedress-data/acceleration/panel3-new-data.csv')
+    .defer(d3.csv, 'internetbday-data/new-data/panel0-new-data.csv')
+    .defer(d3.csv, 'internetbday-data/new-data/panel1-new-data.csv')
+    .defer(d3.csv, 'internetbday-data/new-data/panel2-new-data.csv')
+    .defer(d3.csv, 'internetbday-data/new-data/panel3-new-data.csv')
     .await(ready);
 
 

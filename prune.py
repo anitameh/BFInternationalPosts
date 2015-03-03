@@ -24,7 +24,7 @@ def prune(DATA_DIR, threshold, finalcol):
 
 if __name__ == '__main__':
 
-	DATA_DIR = 'thedress-data/new-data'
+	DATA_DIR = 'internetbday-data/new-data'
 	threshold = int( sys.argv[1] )
 	finalcol = str( sys.argv[2] )
 	
