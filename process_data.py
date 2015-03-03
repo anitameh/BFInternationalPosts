@@ -1,8 +1,6 @@
 import numpy as np
-import pandas as pd
-import os
 import scipy as sp
-import sys
+import pandas as pd
 
 '''
 PROCESS-DATA outputs five files: one with the complete set of data, and four files that are subdivisions
@@ -10,20 +8,9 @@ PROCESS-DATA outputs five files: one with the complete set of data, and four fil
 
 Required files:
  * country files containing the countries in each panel (see github.com/anitameh/BFInternationalPosts/country-list)
- * a directory titled new-data with the raw data files
+ * a directory titled new-data
  * the raw data files (obv)
 '''
-
-def readData( data_pathname, list_of_files, lang ):
-	"""
-	Read in partitioned data, add language column, & output data frame.
-	"""
-    alldata = pd.DataFrame()
-    for datafile in list_of_files:
-        df = pd.read_csv( data_pathname + datafile )
-        alldata = alldata.append( df )
-    alldata['Language'] = lang
-    return alldata
 
 def makeCityCountryCol(data):
 	'''
@@ -54,45 +41,12 @@ def makeCityCountryCol(data):
 			city_country.append(ea_cc)
 		if lang[i] == 'de':
 			ea_cc = str(ea_city) + "-" + str(country[i]) + str(4)
-	 		city_country.append(ea_cc)
+			city_country.append(ea_cc)
 
 	# add new column to original data
 	data['CityCountry'] = city_country
 
 	return (city_country, data)
-
-
-def add_cc_col( uniqueCities, outputDF ):
-	"""
-	Add in city and country columns
-	"""
-	print 'adding in city-country column'
-	cities = []
-	countries = []
-	
-	for i in xrange( len(uniqueCities) ):
-		# track progress
-		if i%500 == 0:
-			print 'i =', i
-		title = (outputDF.iloc[i].CityCountry)
-		loc = title.split("-")
-		if len(loc) > 2:
-			city_name = ""
-			for j in xrange( len(loc)-1 ):
-				city_name = city_name + loc[j]
-			cities.append( city_name )
-			country_name = loc[j+1]
-			countries.append( country_name[:-1] )
-		else:
-			cities.append( loc[0] )
-			country_name = loc[1]
-			countries.append( country_name[:-1] )
-
-	outputDF['city'] = cities
-	outputDF['country'] = countries
-
-	return outputDF
-
 
 def ccWithZero(city_list, lang_num):
 	'''
@@ -107,7 +61,7 @@ def ccWithZero(city_list, lang_num):
 	return [ city+str(lang_num) for city in city_list ]
 
 
-def prune(OUTPUT_DIR, FILTERED_OUTPUT_DIR, threshold, finalcol, num_lang):
+def prune(threshold, finalcol):
 	'''
 	PRUNE if the final total number of pages for a particular city-country combo is less than 
 	the 'threshold', remove the corresponding city-country from the dataset
@@ -117,14 +71,14 @@ def prune(OUTPUT_DIR, FILTERED_OUTPUT_DIR, threshold, finalcol, num_lang):
 	:return: outputs a csv to the current directory
 	:rtype: dataframe outputted to csv
 	'''
-	for i in xrange(num_lang):
-		pathname = OUTPUT_DIR + '/panel' + str(i) + '-data.csv'
+	for i in xrange(4):
+		pathname = 'thedress-data/new-data/panel' + str(i) + '-data.csv'
 		data = pd.read_csv(pathname)
 
 		col_of_interest = data[finalcol].values
 		new_data = data.iloc[ np.where( col_of_interest >= threshold) ]
 		print 'panel', str(i), 'new length =', len(new_data)
-		new_pathname = FILTERED_OUTPUT_DIR + '/panel' + str(i) + '-data.csv'
+		new_pathname = 'thedress-data/new-data/panel' + str(i) + '-new-data.csv'
 		new_data.to_csv(new_pathname, index=False)
 
 
@@ -151,43 +105,40 @@ missing_lon = [84.58, 61.52, 2.18, 75.34, 0.13, 2.23, 23.72, 0.2, 1.36, 2.60, 78
 
 def main():
 
-	INPUT_DIR = str( sys.argv[1] )
-	OUTPUT_DIR = str( sys.argv[2] )
-	FILTERED_OUTPUT_DIR = str( sys.argv[3] )
-	PRUNE_BOOL = int( sys.argv[4] )
-	THRESHOLD = int( sys.argv[5] )
-	FINAL_COL = str(sys.argv[6] )
-	NUM_LANG = str(sys.argv[7] )
+	# read in the data - this is for the 31 Sentiments visual in the DataBlog post
+	english_data0 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 26-feb_part1.csv')
+	english_data1 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 26-feb_part2.csv')
+	english_data2 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 27-feb.csv')
+	english_data3 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part1.csv')
+	english_data4 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part2.csv')
+	english_data5 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part3.csv')
+	english_data6 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part4.csv')
+	english_data7 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 28-feb.csv')
+	english_data8 = pd.read_csv('thedress-data/original-data/thedress_en_28-feb to 28-feb.csv')
+	english_data9 = pd.read_csv('thedress-data/original-data/thedress_en_28-feb to 1-mar.csv')
+	spanish_data = pd.read_csv('thedress-data/original-data/thedress_es_26-feb to 1-mar.csv')
+	german_data = pd.read_csv('thedress-data/original-data/thedress_de_26-feb to 1-mar.csv')
+	french_data = pd.read_csv('thedress-data/original-data/thedress_fr_26-feb to 1-mar.csv')
+	port_data = pd.read_csv('thedress-data/original-data/thedress_pt_26-feb to 1-mar.csv')
 
-	CURR_DIR = os.getcwd()
-	data_pathname = CURR_DIR + '/' + INPUT_DIR
+	# combine all data into one giant df
+	english_data = pd.concat([english_data0, english_data1, english_data2, english_data3, 
+		english_data4, english_data5, english_data6, english_data7, english_data8, english_data9])
+	english_data['Language'] = 'en'
 
-	# separate data
-	en_data, es_data, fr_data, de_data, pt_data = [], [], [], [], []
-	for f in os.listdir(data_pathname):
-		if re.search('_en_', f):
-			en_data.append( f )
-		if re.search('_fr_', f):
-			fr_data.append( f )
-		if re.search('_de_', f):
-			de_data.append( f )
-		if re.search('_pt_', f):
-			pt_data.append( f )
-		if re.search('_es_', f):
-			es_data.append( f )
+	spanish_data['Language'] = 'es'
+	french_data['Language'] = 'fr'
+	port_data['Language'] = 'pt'
+	german_data['Language'] = 'de'
 
-	# read in data & add in language column
-	english_data = readData( data_pathname, en_data, 'en' )
-	french_data = readData( data_pathname, fr_data, 'fr' )
-	german_data = readData( data_pathname, de_data, 'de' )
-	port_data = readData( data_pathname, pt_data, 'pt' )
-	spanish_data = readData( data_pathname, es_data, 'es' )
+	original_data = pd.concat([english_data, spanish_data, french_data, port_data, german_data])
 
-	original_data = pd.concat([english_data, french_data, port_data, germ_data])
 
 	# add CityCountry column
 	result = makeCityCountryCol(original_data)
-	city_country, data = result[0], result[1]
+	city_country = result[0]
+	data = result[1]
+
 
 	# handle (0, 0)-(LAT, LON) values
 	zero_cities_en = ccWithZero(missing_cities, 0)
@@ -197,8 +148,8 @@ def main():
 	zero_cities_de = ccWithZero(missing_cities, 4)
 
 	zero_cities = np.concatenate( (zero_cities_en, zero_cities_es, zero_cities_fr, zero_cities_fr, zero_cities_pt) )
-	
-	zero_lat, zero_lon = missing_lat*5, missing_lon*5
+	zero_lat = missing_lat*5
+	zero_lon = missing_lon*5
 
 	for i in xrange(len(zero_cities)):
 		rows = data.iloc[ np.where(data.CityCountry == zero_cities[i]) ]
@@ -210,7 +161,8 @@ def main():
 
 
 	# create list of latitudes and longitudes from given data
-	LAT, LON = [], []
+	LAT = []
+	LON = []
 	uniqueCities = np.unique(data.CityCountry)
 
 	for i in xrange( len(uniqueCities) ):
@@ -226,10 +178,31 @@ def main():
 	outputDF = pd.DataFrame( columns=["CityCountry", "Latitude", "Longitude"] )
 	outputDF.CityCountry = uniqueCities
 	outputDF.Latitude = LAT
-	outputDF.Longitude = LON	
+	outputDF.Longitude = LON
 
-	# add in cities-country column
-	outputDF = add_cc_col( uniqueCities, outputDF )
+	# add in city and country columns
+	cities = []
+	countries = []
+
+	for i in xrange( len(uniqueCities) ):
+		title = (outputDF.iloc[i].CityCountry)
+		loc = title.split("-")
+		
+		if len(loc) > 2:
+			city_name = ""
+			for j in xrange( len(loc)-1 ):
+				city_name = city_name + loc[j]
+			cities.append( city_name )
+			country_name = loc[j+1]
+			countries.append( country_name[:-1] )
+		else:
+			cities.append( loc[0] )
+			country_name = loc[1]
+			countries.append( country_name[:-1] )
+
+	outputDF['city'] = cities
+	outputDF['country'] = countries
+
 	alldates = np.unique(data.Date)
 	thecities = pd.DataFrame(outputDF.CityCountry)
 
@@ -245,20 +218,24 @@ def main():
 		thedate_pvs = data[data.Date == thedate] # pageviews for this date
 
 		# merge pageviews along CityCountry
-		merged = thecities.merge(thedate_pvs.drop_duplicates(cols="City"), on="CityCountry", how="outer")
+	 	merged = thecities.merge(thedate_pvs.drop_duplicates(cols="CityCountry"), on="CityCountry", how="outer")
+	    
+	 	if (i == 0):
 
-		if (i == 0):
 			# replace NA values with 0/en
 			merged.Pageviews = (merged.Pageviews).fillna(value=0)
 			merged.Language = (merged.Language).fillna(value='en')
+
 		else:
+
 			# replace NA values with 0
 			merged.Pageviews = (merged.Pageviews).fillna(value=0)
+
 			# sum with previous year
 			prevdate = alldates[i-1]
 			pv_totals = merged.Pageviews + outputDF[prevdate]
 			merged['Pageviews'] = pv_totals
-	        
+
 		outputDF[thedate] = merged.Pageviews
 		outputDF[thelang] = merged.Language
 
@@ -277,15 +254,15 @@ def main():
 
 	# output final DF before splitting for spot-checking
 	final = outputDF
-	final.to_csv(OUTPUT_DIR + '/alldata.csv', index=False)
+	final.to_csv('thedress-data/new-data/alldata.csv', index=False)
 
 	# separate into four data files, one per panel
 	countries = final.country
 
-	north_am = pd.read_csv('sxsw-data/country-list/north-america.csv', header=None)
-	europe = pd.read_csv('sxsw-data/country-list/europe.csv', header=None)
-	south_am = pd.read_csv('sxsw-data/country-list/south-america.csv', header=None)
-	australasia = pd.read_csv('sxsw-data/country-list/australasia.csv', header=None)
+	north_am = pd.read_csv('country-list/north-america.csv', header=None)
+	europe = pd.read_csv('country-list/europe.csv', header=None)
+	south_am = pd.read_csv('country-list/south-america.csv', header=None)
+	australasia = pd.read_csv('country-list/australasia.csv', header=None)
 
 	# separate into four panels
 	na_ind, e_ind, sa_ind, aus_ind = [], [], [], []
@@ -299,25 +276,32 @@ def main():
 			sa_ind.append( i )
 		elif (country in australasia.values):
 			aus_ind.append( i )
-
+	        
 	panel0 = final.iloc[na_ind]
 	panel1 = final.iloc[e_ind]
 	panel2 = final.iloc[sa_ind]
 	panel3 = final.iloc[aus_ind]
 
 	# write to csv
-	panel0.to_csv(OUTPUT_DIR + '/panel0-data.csv', index=False)
-	panel1.to_csv(OUTPUT_DIR + '/panel1-data.csv', index=False)
-	panel2.to_csv(OUTPUT_DIR + '/panel2-data.csv', index=False)
-	panel3.to_csv(OUTPUT_DIR + '/panel3-data.csv', index=False)
+	panel0.to_csv('thedress-data/new-data/panel0-data.csv', index=False)
+	panel1.to_csv('thedress-data/new-data/panel1-data.csv', index=False)
+	panel2.to_csv('thedress-data/new-data/panel2-data.csv', index=False)
+	panel3.to_csv('thedress-data/new-data/panel3-data.csv', index=False)
 
+	# prune data (adjust threshold)
+	threshold=50
+	finalcol='20150301'
+	prune(threshold, finalcol)
 
-	if PRUNE_BOOL == 1:# prune data (adjust threshold)
-		prune(OUTPUT_DIR, FILTERED_OUTPUT_DIR, THRESHOLD, FINAL_COL, NUM_LANG)
-
-
+        
 if __name__ == '__main__':
 	main()
+
+
+
+
+
+
 
 
 
