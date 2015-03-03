@@ -106,10 +106,10 @@ var monthLabels = d3.scale.ordinal()
 // load data
 queue()
     .defer(d3.json, 'world-50m.json')
-    .defer(d3.csv, 'thedress-data/new-data/panel0-new-data.csv')
-    .defer(d3.csv, 'thedress-data/new-data/panel1-new-data.csv')
-    .defer(d3.csv, 'thedress-data/new-data/panel2-new-data.csv')
-    .defer(d3.csv, 'thedress-data/new-data/panel3-new-data.csv')
+    .defer(d3.csv, 'thedress-data/acceleration/panel0-new-data.csv')
+    .defer(d3.csv, 'thedress-data/acceleration/panel1-new-data.csv')
+    .defer(d3.csv, 'thedress-data/acceleration/panel2-new-data.csv')
+    .defer(d3.csv, 'thedress-data/acceleration/panel3-new-data.csv')
     .await(ready);
 
 
@@ -208,7 +208,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         if (tooltipData) {
             div.html( function() {
                 return '<strong>' + tooltipData.data.city + '</strong> <br> <font size="1">' +
-                    parseInt(tooltipData.data[currentDate]) + ' pageviews </font>' +
+                    parseInt(tooltipData.data[currentDate]) + ' PVs/day </font>' +
                     '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
             })
             .style('left', tooltipData.pos.x)
@@ -323,7 +323,9 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                     time = time.toString() + 'am'
                 } 
                 // return date (and time)
-                return (d.getMonth()+1) + '/' + d.getDate() + ' ' + time; // the +1 accounts for UTC time
+                return (d.getMonth()+1) + '/' + d.getDate(); // the +1 accounts for UTC time
+                // return (d.getMonth()+1) + '/' + d.getDate() + ' ' + time; // the +1 accounts for UTC time
+
             });
 
         d3.select('#slider-container')
@@ -409,7 +411,7 @@ function createLegend() {
 
     // LEGEND 2
     legend.append('text')
-        .text('PAGEVIEWS')
+        .text('PAGEVIEWS/DAY')
         .attr('x', 13)
         .attr('y', 225)
         .style('font-weight', 'bold');
@@ -419,7 +421,7 @@ function createLegend() {
         // size circles
         legend.append('circle')
             .attr('r', parseInt( computeRadius(sizeScale( sizes[i] )) ))
-            .attr('cx', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
+            .attr('cx', 20 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
             .attr('cy', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
@@ -428,7 +430,7 @@ function createLegend() {
         legend.append('text')
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
-            .attr('x', 15 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
+            .attr('x', 20 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
             .attr('y', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5)
             .style('font-size', '11');
     }

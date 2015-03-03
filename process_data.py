@@ -106,32 +106,31 @@ missing_lon = [84.58, 61.52, 2.18, 75.34, 0.13, 2.23, 23.72, 0.2, 1.36, 2.60, 78
 def main():
 
 	# read in the data - this is for the 31 Sentiments visual in the DataBlog post
-	english_data0 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 26-feb_part1.csv')
-	english_data1 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 26-feb_part2.csv')
-	english_data2 = pd.read_csv('thedress-data/original-data/thedress_en_26-feb to 27-feb.csv')
-	english_data3 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part1.csv')
-	english_data4 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part2.csv')
-	english_data5 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part3.csv')
-	english_data6 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 27-feb_part4.csv')
-	english_data7 = pd.read_csv('thedress-data/original-data/thedress_en_27-feb to 28-feb.csv')
-	english_data8 = pd.read_csv('thedress-data/original-data/thedress_en_28-feb to 28-feb.csv')
-	english_data9 = pd.read_csv('thedress-data/original-data/thedress_en_28-feb to 1-mar.csv')
-	spanish_data = pd.read_csv('thedress-data/original-data/thedress_es_26-feb to 1-mar.csv')
-	german_data = pd.read_csv('thedress-data/original-data/thedress_de_26-feb to 1-mar.csv')
-	french_data = pd.read_csv('thedress-data/original-data/thedress_fr_26-feb to 1-mar.csv')
-	port_data = pd.read_csv('thedress-data/original-data/thedress_pt_26-feb to 1-mar.csv')
+	english_data0 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 23-feb_part1.csv')
+	english_data1 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 23-feb_part2.csv')
+	english_data2 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 24-feb.csv')
+	english_data3 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part1.csv')
+	english_data4 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part2.csv')
+	english_data5 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 25-feb.csv')
+	english_data6 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_25-feb to 26_feb.csv')
+	english_data7 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_26-feb to 26-feb.csv')
+		
+	german_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_de_23-feb to 26-feb.csv')
+	
+	french_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_fr_23-feb to 26-feb.csv')
+	
+	port_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_pt_23-feb to 26-feb.csv')
 
 	# combine all data into one giant df
 	english_data = pd.concat([english_data0, english_data1, english_data2, english_data3, 
-		english_data4, english_data5, english_data6, english_data7, english_data8, english_data9])
+		english_data4, english_data5, english_data6, english_data7])
 	english_data['Language'] = 'en'
 
-	spanish_data['Language'] = 'es'
 	french_data['Language'] = 'fr'
 	port_data['Language'] = 'pt'
 	german_data['Language'] = 'de'
 
-	original_data = pd.concat([english_data, spanish_data, french_data, port_data, german_data])
+	original_data = pd.concat([english_data, french_data, port_data, german_data])
 
 
 	# add CityCountry column
@@ -290,7 +289,7 @@ def main():
 
 	# prune data (adjust threshold)
 	threshold=50
-	finalcol='20150301'
+	finalcol='20150226'
 	prune(threshold, finalcol)
 
         
