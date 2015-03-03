@@ -106,10 +106,10 @@ var monthLabels = d3.scale.ordinal()
 // load data
 queue()
     .defer(d3.json, 'world-50m.json')
-    .defer(d3.csv, 'sxsw-data/new-data/panel0-data.csv')
-    .defer(d3.csv, 'sxsw-data/new-data/panel1-data.csv')
-    .defer(d3.csv, 'sxsw-data/new-data/panel2-data.csv')
-    .defer(d3.csv, 'sxsw-data/new-data/panel3-data.csv')
+    .defer(d3.csv, 'thedress-data/new-data/panel0-new-data.csv')
+    .defer(d3.csv, 'thedress-data/new-data/panel1-new-data.csv')
+    .defer(d3.csv, 'thedress-data/new-data/panel2-new-data.csv')
+    .defer(d3.csv, 'thedress-data/new-data/panel3-new-data.csv')
     .await(ready);
 
 
@@ -224,10 +224,9 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
     requestAnimationFrame(drawTooltip);
 
-    
 
     dateScale = createDateScale(DATES)
-        .range([0,500]);
+        .range([0,SLIDERWIDTH]);
 
     createLegend();
 
@@ -290,7 +289,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
     function createSlider() {
 
         sliderScale = d3.scale.linear()
-            .domain([0, DATES.length-1]);
+            .domain([0, DATES.length]);
 
         var val = slider ? slider.value() : 0;
 
@@ -298,7 +297,8 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                     .scale( sliderScale )
                     .on('slide', function(event, value) {
                         isPlaying = false;
-                        currentFrame = Math.floor(value);
+                        // currentFrame = Math.floor(value);
+                        currentFrame = Math.ceil(value);
                         // update to this particular date
                         drawDay( currentFrame, d3.event.type != 'drag' ); // draw this date when dragged
                     })
@@ -317,12 +317,12 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                 time = parseInt(d.getHours()) - 5
                 if (time < 0) {
                     time = time+12
-                    time = time.toString() + ':00pm'
+                    time = time.toString() + 'pm'
                 }
                 else {
-                    time = time.toString() + ':00'
+                    time = time.toString() + 'am'
                 } 
-                // return date and time
+                // return date (and time)
                 return (d.getMonth()+1) + '/' + d.getDate() + ' ' + time; // the +1 accounts for UTC time
             });
 
@@ -344,15 +344,22 @@ function createDateScale( DATES ) {
     var start = DATES[0],
         end = DATES[DATES.length-1];
 
-    var start_again = start.slice(0,4) + '-' + start.slice(4,6) + '-' + (parseInt(start.slice(6, 8))+1).toString(),
-        end_again = end.slice(0,4) + '-' + end.slice(4,6) + '-' + (parseInt(end.slice(6, 8))+1).toString();
+    var start_again = createDate(start),
+        end_again = createDate(end);
 
-    var start_date = new Date(start_again),
-        end_date = new Date(end_again);
+    var start_date = new Date(start_again);
+        // end_date = new Date(end_again);
+    var end_date = new Date('2015-03-02');
 
     return d3.time.scale()
-        .domain( [start_date, end_date] );
+        .domain([start_date, end_date]);
+}
 
+
+function createDate( dateStr ) {
+
+    var choppedDate = dateStr.slice(0,4) + '-' + dateStr.slice(4,6) + '-' + (parseInt(dateStr.slice(6, 8))+1).toString();
+    return new Date( choppedDate );
 }
 
 function dateLabel(m) {
