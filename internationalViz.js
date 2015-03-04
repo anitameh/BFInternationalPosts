@@ -202,13 +202,30 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         circles.push(bubbles);
     }
 
+    // draw dates DIV at the bottom (alternative to slider)
+    var dateDiv = d3.select('body').select('div.frame')
+            .data(DATES)
+            .enter()
+            .append('div')
+                .attr('date', function(d) { 
+                    return 'date'+d; 
+                })
+                .attr('class', 'frame')
+                .style('left', function(d, i) { 
+                    return ((SLIDERWIDTH/DATES.length)*(i+1) + 'px'); 
+                })
+                .text( function(d, i) { 
+                    return d.slice(4,6) + '/' + d.slice(6,8); 
+                })
+            .on('click', clicked); 
+
 
     // update tooltip *while* hovering over bubbles
     function drawTooltip() {
         if (tooltipData) {
             div.html( function() {
                 return '<strong>' + tooltipData.data.city + '</strong> <br> <font size="1">' +
-                    parseInt(tooltipData.data[currentDate]) + ' PVs/day </font>' +
+                    parseInt(tooltipData.data[currentDate]) + ' pageviews </font>' +
                     '<br> <font size="1"><font color="grey"> DAY ' + (DATES.indexOf(currentDate)+1) + '</font></font>'; 
             })
             .style('left', tooltipData.pos.x)
@@ -237,7 +254,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         isPlaying = !isPlaying;
         if (isPlaying) {
             animate();
-            d3.select('.dateactive').classed('dateactive', false);
+            d3.select('.frame.active').classed('active', false);
         }
 
         // change class of button (i.e. change image to pause)
@@ -284,25 +301,11 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         requestAnimationFrame(showCycle); // requestAnimationFrame optimizes re-drawing with page paint
     }
 
-    // add DIVs with dates
-    var dateDiv = d3.select('body').append('div')
-        .data(DATES)
-        .enter()
-        .append('div')
-            .attr('class', 'date')
-            .style('left', function(d, i) { 
-                return ((SLIDERWIDTH/DATES.length)*i + 'px'); 
-            })
-            .text( function(d, i) { 
-                return d.slice(4,6) + '/' + d.slice(6,8); 
-            })
-        .on('click', clicked); 
-
 
     function clicked(d) {
         // select date div and highlight it
-        d3.select('.date.dateactive').classed('dateactive', false);
-        d3.select(this).classed('dateactive', true);
+        d3.select('.frame.active').classed('active', false);
+        d3.select(this).classed('active', true);
 
         currentFrame = DATES.indexOf(d);
 
@@ -394,7 +397,7 @@ function createLegend() {
 
     // LEGEND 2
     legend.append('text')
-        .text('PAGEVIEWS/DAY')
+        .text('PAGEVIEWS')
         .attr('x', 13)
         .attr('y', 225)
         .style('font-weight', 'bold');
@@ -404,7 +407,7 @@ function createLegend() {
         // size circles
         legend.append('circle')
             .attr('r', parseInt( computeRadius(sizeScale( sizes[i] )) ))
-            .attr('cx', 20 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
+            .attr('cx', 10 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))))
             .attr('cy', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - parseInt(computeRadius(sizeScale( sizes[i] ))) )
             .attr('vector-effect','non-scaling-stroke')
             .style('fill', 'none')
@@ -413,7 +416,7 @@ function createLegend() {
         legend.append('text')
             .text( roundUp(parseInt(sizes[i])) )
             .attr('text-anchor', 'middle' )
-            .attr('x', 20 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
+            .attr('x', 10 + parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) )
             .attr('y', 8.5*parseInt(computeRadius(sizeScale( sizes[sizes.length-1] ))) - 2*parseInt(computeRadius(sizeScale( sizes[i] ))) + 14.5)
             .style('font-size', '11');
     }
