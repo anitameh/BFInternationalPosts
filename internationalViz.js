@@ -75,8 +75,7 @@ function init() {
 var GLOBALMIN = 0,
     GLOBALMAX,
     DATES,
-    FRAMELENGTH = 450,
-    INCREMENT = 20,
+    FRAMELENGTH = 600,
     SLIDERWIDTH = 500,
     isPlaying = false,
     currentFrame = 0,
@@ -202,7 +201,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         circles.push(bubbles);
     }
 
-    // draw dates DIV at the bottom (alternative to slider)
+    // draw dates DIVs at the bottom (alternative to slider)
     var dateDiv = d3.select('body').select('div.frame')
             .data(DATES)
             .enter()
@@ -270,8 +269,19 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
 
     function drawDay(m, tween) {
         currentDate = DATES[ m ];
-        currentLanguage = 'Language' + currentDate;
 
+        // highlight the appropriate div on animation
+        var prev = m-1;
+        if (prev < 0) {
+            prev = 4;
+        }
+        var prevDate = DATES[ prev ];
+        d3.select('[date="date'+prevDate +'"]').classed('active', false);
+        d3.select('[date="date'+currentDate +'"]').classed('active', true);
+
+        currentLanguage = 'Language' + currentDate; // get current language
+
+        // update bubbles
         for (var i=0; i<4; i++) {
             circles[i]
                 .transition()
