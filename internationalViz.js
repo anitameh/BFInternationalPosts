@@ -1,6 +1,6 @@
 /*
  * @author: Anita Mehrotra
- * @date: December 8, 2014
+ * @date: March 13, 2015
  * @project: BF International Viz
 */
 
@@ -105,10 +105,10 @@ var monthLabels = d3.scale.ordinal()
 // load data
 queue()
     .defer(d3.json, 'world-50m.json')
-    .defer(d3.csv, 'monopoly-data/new-data/panel0-data.csv')
-    .defer(d3.csv, 'monopoly-data/new-data/panel1-data.csv')
-    .defer(d3.csv, 'monopoly-data/new-data/panel2-data.csv')
-    .defer(d3.csv, 'monopoly-data/new-data/panel3-data.csv')
+    .defer(d3.csv, 'data/panel0-new-data.csv')
+    .defer(d3.csv, 'data/panel1-new-data.csv')
+    .defer(d3.csv, 'data/panel2-new-data.csv')
+    .defer(d3.csv, 'data/panel3-new-data.csv')
     .await(ready);
 
 
@@ -211,13 +211,29 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
                 })
                 .attr('class', 'frame')
                 .style('left', function(d, i) { 
-                    return ((SLIDERWIDTH/DATES.length)*(i+1) + 'px'); 
+                    if (i < 11) {
+                        return ((550/11)*(i+1.25) + 'px'); 
+                    }
+                    else {
+                        var j = i-11;
+                        return ( (550/11)*(j+1.25) + 'px' ); 
+                    }
                 })
+                .style('margin-top', function(d, i) {
+                    if (i < 11) {
+                        return '-25px';
+                    }
+                    else {
+                        return '5px';
+                    }
+                })  
                 .text( function(d, i) { 
                     return d.slice(4,6) + '/' + d.slice(6,8); 
                 })
             .on('click', clicked); 
 
+    // initialize first div date
+    d3.select('[date="date'+DATES[0] +'"]').classed('active', true);
 
     // update tooltip *while* hovering over bubbles
     function drawTooltip() {
