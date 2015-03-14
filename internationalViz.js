@@ -105,10 +105,10 @@ var monthLabels = d3.scale.ordinal()
 // load data
 queue()
     .defer(d3.json, 'world-50m.json')
-    .defer(d3.csv, 'internetbday-data/new-data/panel0-new-data.csv')
-    .defer(d3.csv, 'internetbday-data/new-data/panel1-new-data.csv')
-    .defer(d3.csv, 'internetbday-data/new-data/panel2-new-data.csv')
-    .defer(d3.csv, 'internetbday-data/new-data/panel3-new-data.csv')
+    .defer(d3.csv, 'monopoly-data/new-data/panel0-data.csv')
+    .defer(d3.csv, 'monopoly-data/new-data/panel1-data.csv')
+    .defer(d3.csv, 'monopoly-data/new-data/panel2-data.csv')
+    .defer(d3.csv, 'monopoly-data/new-data/panel3-data.csv')
     .await(ready);
 
 
@@ -273,7 +273,7 @@ function ready(error, world, PV0, PV1, PV2, PV3) {
         // highlight the appropriate div on animation
         var prev = m-1;
         if (prev < 0) {
-            prev = 4;
+            prev = DATES.length-1;
         }
         var prevDate = DATES[ prev ];
         d3.select('[date="date'+prevDate +'"]').classed('active', false);
@@ -381,7 +381,7 @@ function createLegend() {
     var legend = g.append('g')
         .attr('id','legend');
 
-    var languages = ['English', 'Espanol', 'French', 'Portuguese', 'Deutsche'];
+    var languages = ['English', 'Spanish', 'French', 'Portuguese', 'German'];
 
     // LEGEND 1
     legend.append('text')

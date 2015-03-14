@@ -106,31 +106,32 @@ missing_lon = [84.58, 61.52, 2.18, 75.34, 0.13, 2.23, 23.72, 0.2, 1.36, 2.60, 78
 def main():
 
 	# read in the data - this is for the 31 Sentiments visual in the DataBlog post
-	english_data0 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 23-feb_part1.csv')
-	english_data1 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 23-feb_part2.csv')
-	english_data2 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 24-feb.csv')
-	english_data3 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part1.csv')
-	english_data4 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part2.csv')
-	english_data5 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 25-feb.csv')
-	english_data6 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_25-feb to 26_feb.csv')
-	english_data7 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_26-feb to 26-feb.csv')
+	english_data = pd.read_csv('monopoly-data/original-data/Analytics buzzfeed.com International Visualization Post 20150213-20150309.csv')
+	# english_data1 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 23-feb_part2.csv')
+	# english_data2 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_23-feb to 24-feb.csv')
+	# english_data3 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part1.csv')
+	# english_data4 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 24-feb_part2.csv')
+	# english_data5 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_24-feb to 25-feb.csv')
+	# english_data6 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_25-feb to 26_feb.csv')
+	# english_data7 = pd.read_csv('internetbday-data/original-data/International Visualization Post_en_26-feb to 26-feb.csv')
 		
-	german_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_de_23-feb to 26-feb.csv')
+	# german_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_de_23-feb to 26-feb.csv')
 	
-	french_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_fr_23-feb to 26-feb.csv')
+	# french_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_fr_23-feb to 26-feb.csv')
 	
-	port_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_pt_23-feb to 26-feb.csv')
+	# port_data = pd.read_csv('internetbday-data/original-data/International Visualization Post_pt_23-feb to 26-feb.csv')
 
-	# combine all data into one giant df
-	english_data = pd.concat([english_data0, english_data1, english_data2, english_data3, 
-		english_data4, english_data5, english_data6, english_data7])
+	# # combine all data into one giant df
+	# english_data = pd.concat([english_data0, english_data1, english_data2, english_data3, 
+	# 	english_data4, english_data5, english_data6, english_data7])
 	english_data['Language'] = 'en'
 
-	french_data['Language'] = 'fr'
-	port_data['Language'] = 'pt'
-	german_data['Language'] = 'de'
+	# french_data['Language'] = 'fr'
+	# port_data['Language'] = 'pt'
+	# german_data['Language'] = 'de'
 
-	original_data = pd.concat([english_data, french_data, port_data, german_data])
+	# original_data = pd.concat([english_data, french_data, port_data, german_data])
+	original_data = english_data
 
 
 	# add CityCountry column
@@ -282,15 +283,15 @@ def main():
 	panel3 = final.iloc[aus_ind]
 
 	# write to csv
-	panel0.to_csv('thedress-data/new-data/panel0-data.csv', index=False)
-	panel1.to_csv('thedress-data/new-data/panel1-data.csv', index=False)
-	panel2.to_csv('thedress-data/new-data/panel2-data.csv', index=False)
-	panel3.to_csv('thedress-data/new-data/panel3-data.csv', index=False)
+	panel0.to_csv('monopoly-data/new-data/panel0-data.csv', index=False)
+	panel1.to_csv('monopoly-data/new-data/panel1-data.csv', index=False)
+	panel2.to_csv('monopoly-data/new-data/panel2-data.csv', index=False)
+	panel3.to_csv('monopoly-data/new-data/panel3-data.csv', index=False)
 
 	# prune data (adjust threshold)
-	threshold=50
-	finalcol='20150226'
-	prune(threshold, finalcol)
+	# threshold=50
+	# finalcol='20150226'
+	# prune(threshold, finalcol)
 
         
 if __name__ == '__main__':
